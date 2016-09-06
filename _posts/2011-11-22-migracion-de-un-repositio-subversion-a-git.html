@@ -1,0 +1,100 @@
+---
+layout: post
+status: publish
+published: true
+title: Migración de un repositio Subversion a Git
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2568
+wordpress_url: http://www.becodemyfriend.com/?p=2568
+date: '2011-11-22 11:28:44 +0000'
+date_gmt: '2011-11-22 10:28:44 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Sistemas
+- git
+- subversion
+---
+<p style="text-align: justify;">La migración que vamos a realizar deberá mantener tanto los logs como todos sus branches y tags desde un SCV a otro.</p>
+<p style="text-align: justify;">Para poder seguir este manual necesitaremos un paquete llamado</p>
+<pre class="java" name="code">git-svn</pre>
+<p style="text-align: justify;">el cual, según la distribución que usemos, se hará de un modo u otro</p>
+<pre class="java" name="code">ubuntu
+
+apt-get install git-svn</pre>
+<pre class="java" name="code">centos
+
+yum install git-svn</pre>
+<h3 style="text-align: justify;">1. Creación del repositorio Git de destino.</h3>
+<p style="text-align: justify;">Para crear el repositorio Git hago uso de un pequeño script que me hice, donde se le pasa como único parámetro el nombre del repo:</p>
+<pre class="java" name="code">sh makegit.sh mirepo</pre>
+<p style="text-align: justify;">En este script debes modificar la definición de las constantes de las primeras líneas para ajustarlo a tu entorno:</p>
+<pre class="java" name="code">#!/bin/sh
+
+GIT_OWNER="texto propietario"
+GIT_EMAIL="email@propietario"
+GIT_HOME="/home/user/git/"
+GIT_REPO=$1".git"
+
+cd ${GIT_HOME}
+mkdir ${GIT_REPO}
+cd ${GIT_REPO}
+
+git init --bare
+git config --global user.name ${GIT_OWNER}
+git config --global user.email ${GIT_EMAIL}
+git repo-config core.sharedRepository true
+
+cd ${GIT_HOME}
+chown -R git:git ${GIT_REPO}
+chmod -R 775 ${GIT_REPO}
+chmod -R g+ws ${GIT_REPO}
+chgrp -R git ${GIT_REPO}</pre>
+<p style="text-align: justify;">Lo ejecutamos y creamos el nuevo repositorio Git.</p>
+<h3 style="text-align: justify;">2. Creamos repositorio Git vacío.</h3>
+<p style="text-align: justify;">Este repositorio es donde vamos a volcar y transformar todos los datos desde Subversion.</p>
+<pre class="java" name="code">cd /tmp/
+git svn init -s https://svn.miservidor.com/mirepo migracion
+cd migracion</pre>
+<h3 style="text-align: justify;">3. Usuarios remotos Subversión.</h3>
+<p style="text-align: justify;">El siguiente paso es crear un fichero donde vamos a ir poniendo los usuarios Subversion para poder tener la relación de los logs correctamente.</p>
+<p style="text-align: justify;">Este fichero tiene el siguiente formato, no debiendo omitir ningún dato.</p>
+<pre class="java" name="code">nombre_usuario_1 = Nombre del Usuario 1 &lt;mail1@usuario.com&gt;
+nombre_usuario_2 = Nombre del Usuario 2 &lt;mail2@usuario.com&gt;</pre>
+<p style="text-align: justify;">Lo guardamos en el fichero</p>
+<pre class="java" name="code">usuarioMigracion de un repositio subversion a git.</pre>
+<p style="text-align: justify;">y ejecutamos</p>
+<pre class="java" name="code">git config svn.authorsfile usuarios
+git svn fetch
+git branch -r | sed -rne 's, *tags/([^@]+)$,,p' | while read tag; do echo "git tag $tag 'tags/${tag}^'; git branch -r -d tags/$tag"; done | sh
+git branch -r | grep -v tags | sed -rne 's, *([^@]+)$,,p' | while read branch; do echo "git branch $branch $branch"; done | sh</pre>
+<p style="text-align: justify;">Compactamos el repo y quitamos la metadata de Subversion.</p>
+<pre class="java" name="code">git repack -d -f -a --depth=50 --window=100
+git config --remove-section svn-remote.svn
+git config --remove-section svn
+rm -r .git/svn</pre>
+<p style="text-align: justify;">Para poder sacar la lista completa de usuarios Subversion desde la misma máquina donde<br />
+tenemos el repo de Subversion, podemos ejecutar:</p>
+<pre class="java" name="code">svn log -q https://svn.miservidor.com/mirepo | grep -e '^r' | awk 'BEGIN {FS="|"};{print $2}'|sort|uniq</pre>
+<p style="text-align: justify;">y veremos la lista de todos los usuarios que necesitamos crear para el Git para mantener el log completo y correcto.</p>
+<h3 style="text-align: justify;">4. Integración en el Git.</h3>
+<p style="text-align: justify;">Una vez tenemos el repositorio de Subversion pasado a Git, bastará con asociar el origen<br />
+y hacer el push.</p>
+<pre class="java" name="code">cd /tmp/migracion</pre>
+<pre class="java" name="code">git remote add origin git@miservidor.com:mirepo.git
+git push --all &amp;&amp; git push --tags</pre>
+<p style="text-align: justify;">y con esto ya tenemos migrado nuestro repositorio Subversion a nuestro servidor Git sin perder el histórico.</p>
+<h3 style="text-align: justify;">Happy coding :)</h3>
+<p><br/></p>
+<h3 style="text-align: justify;"></h3>
+<h3 style="text-align: justify;">Entradas similares:</h3>
+<p style="text-align: justify;"><a title="beCode author - Markitos" href="http://www.becodemyfriend.com/author/markitos" target="_blank">Author: Markitos</a></p>
+<p style="text-align: justify;"><a title="beCode tag - Sistemas" href="http://www.becodemyfriend.com/tag/sistemas" target="_blank">Tag: Sistemas</a></p>
+<p style="text-align: justify;"><a title="beCode tag - Programación" href="http://www.becodemyfriend.com/tag/programacion" target="_blank">Tag: Programación</a></p>

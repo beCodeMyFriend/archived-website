@@ -1,0 +1,39 @@
+---
+layout: post
+status: publish
+published: true
+title: Configurar SNMPD en CentOS 5
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2285
+wordpress_url: http://www.becodemyfriend.com/?p=2285
+date: '2011-11-08 11:22:00 +0000'
+date_gmt: '2011-11-08 10:22:00 +0000'
+categories:
+- Programación
+tags:
+- Sistemas
+- Linux
+---
+<p>Requerimiento:</p>
+<p>Configurar el servicio SNMPD en CentOS para poderlo graficar desde un Cacti remotamente.</p>
+<p>Solución:</p>
+<h3>Paso 1. Instalar SNMPD.</h3>
+<pre class="java" name="code">yum install net-snmp-utils</pre>
+<h3>Paso 2. Configurar SNMPD.</h3>
+<pre class="java" name="code">mv /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.original
+nano -w /etc/snmp/snmpd.conf
+
+rocommunity public
+syslocation "TuServidor DataCenter"
+syscontact none@none.com</pre>
+<h3>Paso 3. Reiniciar servicio.</h3>
+<pre class="java" name="code">/etc/init.d/snmpd restart</pre>
+<h3>Paso 4. Probarlo.</h3>
+<p>Desde el servidor que tiene el Cacti instalado, podéis ejecutar el siguiente comando y ver que la salida no de error alguno.</p>
+<pre class="java" name="code">snmpwalk -v 2c -c public IP_HOST_CON_SNMPD system</pre>

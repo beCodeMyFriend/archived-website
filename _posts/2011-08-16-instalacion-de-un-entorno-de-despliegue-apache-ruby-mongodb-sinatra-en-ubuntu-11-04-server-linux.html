@@ -1,0 +1,137 @@
+---
+layout: post
+status: publish
+published: true
+title: Instalación de un entorno de despliegue Apache + Ruby + Mongodb + Sinatra en
+  Ubuntu 11.04 Server Linux
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 1955
+wordpress_url: http://www.becodemyfriend.com/?p=1955
+date: '2011-08-16 05:35:55 +0000'
+date_gmt: '2011-08-16 04:35:55 +0000'
+categories:
+- Programación
+tags:
+- Manuales
+- Programación
+- Tooling
+- Sinatra
+---
+<p>Esta instalación ha sido probada desde una distribución Linux recién instalada: <strong>Ubuntu 11.04 Server</strong>.</p>
+<h3>PASO 1. ACTUALIZACIÓN SISTEMA BASE.</h3>
+<pre class="java" name="code">apt-get update</pre>
+<h3>PASO 2. INSTALACIÓN DE APACHE.</h3>
+<pre class="java" name="code">apt-get install apache2</pre>
+<h3>PASO 3. INSTALACIÓN DE RUBY 1.9.</h3>
+<p>En el momento de esta instalación, desde los repositorios oficiales la última versión disponible era la 1.9.1.</p>
+<pre class="java" name="code">apt-get install ruby1.9.1</pre>
+<h3>PASO 4. CREANDO ENLACES RUBY.</h3>
+<pre class="java" name="code">ln -s /usr/bin/ruby1.9.1 /usr/bin/ruby
+
+ln -s /usr/bin/irb1.9.1 /usr/bin/irb
+
+ln -s /usr/bin/gem1.9.1 /usr/bin/gem
+
+ln -s /usr/bin/rake1.9.1 /usr/bin/rake
+
+ln -s /usr/bin/rdoc1.9.1 /usr/bin/rdoc</pre>
+<h3>PASO 5. INSTALANDO PAQUETES BASE PARA COMPILAR.</h3>
+<pre class="java" name="code">apt-get install build-essential</pre>
+<h3>PASO 6. INSTALANDO DEPENDENCIAS PARA PASSENGER.</h3>
+<p>NOTA: Quien alguna vez haya instalado Passenger, saber que no lo voy a hacer desde el módulo del repositorio, sino compilándolo para nuestro sistema. Entre otras ventajas, nos dará un sistema con la versión 1.9 de Ruby sin necesidad de instalar la 1.8 desde Passenger.</p>
+<pre class="java" name="code">apt-get install libcurl4-openssl-dev libssl-dev zlib1g-dev apache2-prefork-dev libapr1-dev libaprutil1-dev ruby1.9.1-dev</pre>
+<h3>PASO 7. INSTALANDO PASSENGER.</h3>
+<pre class="java" name="code">gem install passengercd /var/lib/gems/1.9.1/bin./passenger-install-apache2-module</pre>
+<p>NOTA: Veremos todas las dependencias en verde y después empezará a compilar e instalar el módulo. Pero no lo configura en Apache.</p>
+<h3>PASO 8. CONFIGURACIÓN DE PASSENGER EN APACHE.</h3>
+<pre class="java" name="code">cd /etc/apache2/conf.d</pre>
+<p>En este directorio debemos crear un fichero llamado <em>“passenger”</em> con el siguiente contenido:</p>
+<pre class="java" name="code">apt-get install mongodb-server
+
+LoadModule passenger_module /var/lib/gems/1.9.1/gems/passenger-3.0.8/ext/apache2/mod_passenger.soPassengerRoot
+
+/var/lib/gems/1.9.1/gems/passenger-3.0.8PassengerRuby /usr/bin/ruby1.9.1</pre>
+<p>Una vez creado, reiniciamos Apache y vemos que en el log ya aparece la carga de Passenger.</p>
+<pre class="java" name="code">/etc/init.d/apache2 restarttail /var/log/apache2/error.log</pre>
+<p>Veremos una salida de este tipo:</p>
+<pre class="java" name="code">Apache/2.2.17 (Ubuntu) Phusion_Passenger/3.0.8 configured</pre>
+<p>Lo que nos indica que ya tenemos nuestro módulo de Passenger configurado correctamente en Apache.</p>
+<h3>PASO 9. CREACIÓN DE UN HOST VIRTUAL DE APACHE PARA PRUEBAS.</h3>
+<pre class="java" name="code">cd /etc/apache2/sites-available/</pre>
+<p>En este directorio creamos un fichero llamado <em>“rubytest.com”</em> con el siguiente contenido:</p>
+<pre class="java" name="code">&lt;VirtualHost *:80&gt;
+
+ServerName rubytest.com
+
+ServerAlias rubytest.com
+
+DocumentRoot /var/vhosts/rubytest.com/public
+
+&lt;Directory "/var/vhosts/rubytest.com/public"&gt;
+
+AllowOverride all
+
+Options -Multiviews
+
+&lt;/Directory&gt;
+
+&lt;/VirtualHost&gt;
+
+Accedemos al directorio de activación y lo activamos.
+
+cd /etc/apache2/sites-enabledln -s ../sites-available/rubytest.com 001-rubytest.com</pre>
+<p>Creamos estructura de directorios y reiniciamos Apache.</p>
+<pre class="java" name="code">mkdir -p /var/vhosts/rubytest.comchown -R www-data:www-data /var/vhosts/etc/init.d/apache2 restart</pre>
+<h3>PASO 10. INSTALACIÓN DE SINATRA.</h3>
+<pre class="java" name="code">gem install sinatra</pre>
+<h3>PASO 11. CREACIÓN DE UNA APLICACIÓN DE PRUEBAS.</h3>
+<pre class="java" name="code">cd /var/vhosts/rubytest.com</pre>
+<p>En este directorio creamos la estructura básica necesaria para el despliegue de Sinatra.</p>
+<pre class="java" name="code">mkdir {public,tmp,logs}chown www-data:www-data {public,tmp,logs}</pre>
+<p>Para que Passenger pueda actualizar la aplicacion sin necesidad de reiniciar Apache, creamos el fichero <em>“restart.txt”</em> dentro de <em>“tmp”</em></p>
+<pre class="java" name="code">touch tmp/restart.txt</pre>
+<p>Y ahora dentro de <em>“/var/vhosts/rubytest.com” </em>vamos a crear una aplicación de pruebas llamada <em>“hola”</em> que contiene dos ficheros <em>“config.ru”</em> y <em>“hola.rb”</em>.</p>
+<p>El primero es para Passenger, donde le indicamos que aplicación Ruby debe ejecutar y con qué. En nuestro caso Sinatra.</p>
+<p>El segundo es la aplicación Sinatra en sí, que en nuestro ejemplo sólo contendrá una salida por pantalla:</p>
+<p><em>Hola Sinatra</em></p>
+<p>El fichero <em>“config.ru”</em> debe contener:</p>
+<pre class="java" name="code">$LOAD_PATH.unshift(File.expand_path(File.dirname(__FILE__)))
+
+require "hola"
+
+root_dir = File.dirname(__FILE__)
+
+set :environment, ENV["RACK_ENV"].to_sym
+
+set :root,        root_dir
+
+set :app_dile,    File.join(root_dir, "hola.rb")
+
+disable :run
+
+run Sinatra::Application</pre>
+<p>El fichero <em>“hola.rb”</em> debe contener:</p>
+<pre class="java" name="code">require "rubygems"
+
+require "sinatra"
+
+get "/" do
+
+"Hola Sinatra"
+
+end</pre>
+<p>Reiniciamos Apache y probamos nuestro dominio:</p>
+<p>rubytest.com</p>
+<p>Debemos inyectar en nuestro DNS local el registro para que ese dominio apunte a nuestra IP:</p>
+<pre class="java" name="code">echo "127.0.0.1 rubytest.com" &gt; /etc/hosts
+
+/etc/init.d/apache2 restart</pre>
+<p>Ahora ya sólo queda ir en nuestro navegador a la URL 'http://rubytest.com' y ver la frase <em>“Hola Sinatra”</em>. El resto es cosa vuestra =)</p>
+<h3>PASO 12. INSTALACIÓN DE MONGODB.</h3>
+<pre class="java" name="code">apt-get install mongodb-server</pre>

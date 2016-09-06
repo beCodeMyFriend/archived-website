@@ -1,0 +1,508 @@
+---
+layout: post
+status: publish
+published: true
+title: Manual de instalación y configuración de Nagios 3 - Monitoring Parte II
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+excerpt: "Este <strong>manual</strong> describe la <strong>instalación y configuración
+  de Nagios</strong> 3 en un sistema Linux (Ubuntu 8.04) recién instalado.\r\n\r\nEl
+  cómo instalar el sistema operativo, así como el funcionamiento del mismo no están
+  en el alcance de este documento, asumiendo que el usuario tiene unos minimos conocimientos
+  en entornos Linux.\r\n\r\nSi la instalación se realiza en otra distribución que
+  no sea Ubuntu, los cambios deben ser mínimos. Ya que la instalación de <strong>Nagios</strong>
+  en sí se realizará desde el código fuente para dar mayor amplitud a los sistemas
+  en los que pueda aplicarse este documento."
+wordpress_id: 934
+wordpress_url: http://www.becodemyfriend.com/?p=587
+date: '2011-04-11 11:56:06 +0000'
+date_gmt: '2011-04-11 10:56:06 +0000'
+categories:
+- Programación
+tags:
+- Manuales
+- Programación
+- Sistemas
+- Linux
+---
+<p>Este <strong>manual</strong> describe la <strong>instalación y configuración de Nagios</strong> 3 en un sistema Linux (Ubuntu 8.04) recién instalado.</p>
+<p>El cómo instalar el sistema operativo, así como el funcionamiento del mismo no están en el alcance de este documento, asumiendo que el usuario tiene unos minimos conocimientos en entornos Linux.</p>
+<p>Si la instalación se realiza en otra distribución que no sea Ubuntu, los cambios deben ser mínimos. Ya que la instalación de <strong>Nagios</strong> en sí se realizará desde el código fuente para dar mayor amplitud a los sistemas en los que pueda aplicarse este documento.<a id="more"></a><a id="more-934"></a></p>
+<h3>Paso 1. Entramos en modo root (su).</h3>
+<pre class="java" name="code">sudo su -mp</pre>
+<h3>Paso 2. Actualización del sistema base.</h3>
+<pre class="java" name="code">apt-get update</pre>
+<h3>Paso 3. Instalamos Apache 2 y PHP version 5.</h3>
+<pre class="java" name="code">apt-get install apache2 php5</pre>
+<h3>Paso 4. Creamos fichero info.php para comprobar instalación.</h3>
+<pre class="java" name="code">cd /var/www
+
+echo "<!--?php phpinfo(); ?-->"  &gt; info.php</pre>
+<h3>Paso 5. Reiniciamos servicio Apache.</h3>
+<pre class="java" name="code">/etc/init.d/apache2 restart</pre>
+<h3>Paso 6. Entramos por el navegador a la IP del servidor a la URL.</h3>
+<pre class="java" name="code">http://ip.servidor/info.php</pre>
+<h3>Paso 7. Instalamos el paquete de compilación necesario.</h3>
+<pre class="java" name="code">apt-get install build-essential</pre>
+<h3>Paso 8. Instalación de las librerías necesarias para jpeg, png y gd2.</h3>
+<pre class="java" name="code">apt-get install libjpeg62 libjpeg62-dev libpng12-0 libpng12-dev libgd2-xpm-dev</pre>
+<h3>Paso 9. Instalación de la libreria GD.</h3>
+<pre class="java" name="code">cd /tmp
+wget -c http://www.libgd.org/releases/gd-2.0.35.tar.gz
+tar -xzvf gd-2.0.35.tar.gz
+cd gd-2.0.35
+./configure
+make
+make install</pre>
+<h3>Paso 10. Instalamos modulo GD de PHP.</h3>
+<pre class="java" name="code">apt-get install php5-gd</pre>
+<h3>Paso 11. Reiniciamos Apache y comprobamos mediante la URL de info.php que estén las GD.</h3>
+<pre class="java" name="code">/etc/init.d/apache2 restart</pre>
+<p>(navegador http://ip.servidor/info.php)</p>
+<h3>Paso 12. Creación del usuario Nagios y asignación de password.</h3>
+<pre class="java" name="code">useradd nagios
+passwd nagios</pre>
+<h3>Paso 13. Creación de los grupos de Nagios.</h3>
+<pre class="java" name="code">groupadd nagios
+groupadd nagcmd</pre>
+<h3>Paso 14. Asignación de los usuarios a sus respectivos grupos.</h3>
+<pre class="java" name="code">usermod -G nagios nagios
+usermod -G nagcmd nagios
+usermod -G nagcmd www-data</pre>
+<h3>Paso 15. Descargamos los fuentes de Nagios y sus plugins.</h3>
+<pre class="java" name="code">cd /tmp
+wget http://sourceforge.net/projects/nagios/files/nagios-3.x/nagios-3.2.2/nagios-3.2.2.tar.gz/download
+wget http://sourceforge.net/projects/nagiosplug/files/nagiosplug/1.4.15/nagios-plugins-1.4.15.tar.gz/download</pre>
+<h3>Paso 16. Instalamos Nagios.</h3>
+<pre class="java" name="code">tar xvfz nagios-3.2.2.tar.gz
+cd nagios-3.2.2/
+./configure --with-command-group=nagcmd
+make all
+make install
+make install-init
+make install-config
+make install-commandmode
+make install-webconf</pre>
+<h3>Paso 17. Instalamos los plugins de Nagios.</h3>
+<pre class="java" name="code">cd /tmp
+tar xvfz nagios-plugins-1.4.15.tar.gz
+cd nagios-plugins-1.4.15/
+./configure --with-nagios-user=nagios --with-nagios-group=nagios
+make
+make install</pre>
+<h3>Paso 18. Instalamos el módulo SNMP de perl.</h3>
+<pre class="java" name="code">perl -MCPAN -e "install Net::SNMP"</pre>
+<p>(... a cualquier pregunta respondemos yes)</p>
+<h3>Paso 19. Creamos usuario http para el acceso a Nagios.</h3>
+<pre class="java" name="code">htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin</pre>
+<h3>Paso 20. Reiniciamos el Apache para que actualize este último cambio.</h3>
+<pre class="java" name="code">/etc/init.d/apache2 restart</pre>
+<h3>Paso 21. Iniciamos el servicio de Nagios.</h3>
+<pre class="java" name="code">/etc/init.d/nagios start</pre>
+<p>En este punto ya podemos acceder a la URL de Nagios.</p>
+<pre class="java" name="code">http://ip.servidor/nagios/</pre>
+<p>Con los datos:</p>
+<p>usuario..: nagiosadmin<br />
+password: (el que pusiéramos en el punto 19)</p>
+<h3>Paso 22. Creamos enlace para que arranque en inicio.</h3>
+<pre class="java" name="code">ln -s /etc/init.d/nagios /etc/rcS.d/S99nagios</pre>
+<h3>Paso 23. Instalamos mail. Que es el comando que Nagios usará para el envío de mail.</h3>
+<pre class="java" name="code">apt-get install mailutils</pre>
+<h3>Paso 24. Creamos enlace para el comando mail.</h3>
+<pre class="java" name="code">ln -s /usr/bin/mail /bin/mail</pre>
+<h3>Paso 25. Instalamos postfix como medio de transporte para el envío de correo.</h3>
+<pre class="java" name="code">apt-get install postfix</pre>
+<p>(cuando nos pregunte por "General type of mail configuration" respondemos "Internet Site")<br />
+(cuando nos pregunte por el nombre del host le indicamos el nombre de la máquina completo)</p>
+<p>En este punto tenemos el sistema de correo, pero no configurado. Vamos a configurarlo con un sistema externo, en nuestro caso con una cuenta de correo de Gmail.</p>
+<h3>Paso 26. Copiamos la configuracion original del postfix.</h3>
+<pre class="java" name="code">cp -p /etc/postfix/main.cf /etc/postfix/main.cf.original</pre>
+<h3>Paso 27. Creamos nuestra configuración para Gmail.</h3>
+<pre class="java" name="code">echo "" &gt; /etc/postfix/main.cf
+nano -w /etc/postfix/main.cf</pre>
+<p>El contenido del fichero sería:</p>
+<pre class="java" name="code">relayhost = [smtp.gmail.com]:587
+smtp_use_tls = yes
+smtp_tls_CAfile = /etc/postfix/cacert.pem
+smtp_sasl_auth_enable = yes
+smtp_sasl_password_maps = hash:/etc/postfix/sasl/passwd
+smtp_sasl_security_options = noanonymous</pre>
+<h3>Paso 28. Generemos fichero con la autenticación.</h3>
+<pre class="java" name="code">nano -w /etc/postfix/sasl/passwd</pre>
+<p>El contenido del fichero sería:</p>
+<p>[smtp.gmail.com]:587    usuario@gmail.com:I34Ph5PU</p>
+<p>Reemplazando la cuenta de correo y contraseña por una cuenta valida de Gmail.</p>
+<h3>Paso 29. Asigamos permisos adecuados.</h3>
+<pre class="java" name="code">chmod 600 /etc/postfix/sasl/passwd</pre>
+<h3>Paso 30. Transformamos el fichero passwd a un fichero indexado hash.</h3>
+<pre class="java" name="code">postmap /etc/postfix/sasl/passwd</pre>
+<h3>Paso 31. Añadimos la autoridad certificadora.</h3>
+<pre class="java" name="code">cat /etc/ssl/certs/Equifax_Secure_CA.pem &gt;&gt; /etc/postfix/cacert.pem</pre>
+<h3>Paso 32. Reiniciamos postfix.</h3>
+<pre class="java" name="code">/etc/init.d/postfix restart</pre>
+<h3>Paso 33. Probar el envío de correo.</h3>
+<p>Para probar si esta todo correcto, podemos hacelo enviando un mail con la siguiente orden:</p>
+<pre class="java" name="code">mail -s "el.asunto" usuario@gmail.com</pre>
+<p>CTRL+D ( para enviarlo )</p>
+<p>En el fichero:</p>
+<pre class="java" name="code">/var/log/mail.log</pre>
+<p>debemos ver los logs del envío a la dirección de correo indicada (usuario@gmail.com).</p>
+<pre class="java" name="code">Sep 27 13:38:47 ubuntu postfix/smtp[20410]: 193D11BC65: to=, relay=smtp.gmail.com[74.125.47.109]:587, delay=10, delays=0.15/0.02/7.3/3, dsn=2.0.0, status=sent (250 2.0.0 OK 1285619937 t2sm6274965yba.14)
+Sep 27 13:38:47 ubuntu postfix/qmgr[20385]: 193D11BC65: removed
+Sep 27 13:38:48 ubuntu postfix/smtp[20398]: 748501BC5F: to=, relay=smtp.gmail.com[74.125.157.109]:587, delay=24, delays=0.04/0.23/21/2.6, dsn=2.0.0, status=sent (250 2.0.0 OK 1285619938 u24sm9645159yba.21)
+Sep 27 13:38:48 ubuntu postfix/cleanup[20395]: 2FD691BC64: message-id=&lt;20100927203848.2FD691BC64@ubuntu.localdomain&gt;</pre>
+<p>En este punto ya tenemos nuestro Nagios funcionando correctamente, aunque con 1 solo host: localhost</p>
+<h3>Paso 34. Guardando la configuración de contactos original.</h3>
+<pre class="java" name="code">cp -p /usr/local/nagios/etc/objects/contacts.cfg /usr/local/nagios/etc/objects/contacts.cfg.original</pre>
+<h3>Paso 35. Cambiando la configuración de contactos.</h3>
+<p>Para cambiar el destinatario o destinatarios de correo para las notificaciones debemos editar el fichero:</p>
+<pre class="java" name="code">/usr/local/nagios/etc/objects/contacts.cfg</pre>
+<p>El cual contiene la información de grupo de contactos. Así como sus nombres y direcciones de correo.</p>
+<p>Vaciamos y editamos el fichero de contactos:</p>
+<pre class="java" name="code">echo "" &gt; /usr/local/nagios/etc/objects/contacts.cfg
+nano -w /usr/local/nagios/etc/objects/contacts.cfg</pre>
+<p>El contenido del fichero seria:</p>
+<pre class="java" name="code">define contact{
+contact_name                    administrador1
+use                             generic-contact
+alias                           Nombre Administrador 1
+email                           administrador1@gmail.com
+}
+
+define contact{
+contact_name                    administrador2
+use                             generic-contact
+alias                           Nombre Administrador 2
+email                           administrador2@gmail.com
+}
+
+define contactgroup{
+contactgroup_name       admins
+alias                   Administradores Nagios
+members                 administrador1,administrador2
+}</pre>
+<p>Como se puede observar, hemos creado dos administradores y un solo grupo para los dos. Cada uno de estos contactos con su dirección de correo donde recibirán las notificaciones.</p>
+<h3>Paso 36. Comprobando configuración y reiniciando Nagios.</h3>
+<p>Con el siguiente comando podemos comprobar que los cambios realizados en la configuración son correctos:</p>
+<pre class="java" name="code">/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg</pre>
+<p>El cual debe darnos una salida terminada en:</p>
+<p>Total Warnings: 0<br />
+Total Errors:   0</p>
+<p>Si es correcto reiniciamos Nagios:</p>
+<pre class="java" name="code">/etc/init.d/nagios restart</pre>
+<p>Una manera de probar que la notificación se envía a las dos direcciones es editando el fichero de configuración:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/localhost.cfg</pre>
+<p>Y al final del fichero donde pone:</p>
+<pre class="java" name="code">define service{
+use                             local-service         ; Name of service template to use
+host_name                       localhost
+service_description             HTTP
+check_command                   check_http
+notifications_enabled           0
+}</pre>
+<p>Cambiamos el 0 de la propiedad:</p>
+<p>notifications_enabled</p>
+<p>por un 1, dejándolo así:</p>
+<pre class="java" name="code">define service{
+use                             local-service         ; Name of service template to use
+host_name                       localhost
+service_description             HTTP
+check_command                   check_http
+notifications_enabled           1
+}</pre>
+<p>Reiniciamos nuevamente Nagios y hacemos un stop del servicio http.</p>
+<pre class="java" name="code">/etc/init.d/nagios restart
+/etc/init.d/apache2 stop</pre>
+<p>Viendo los logs del sistema, podremos ver cuando Nagios haga el check y envíe el correo:</p>
+<pre class="java" name="code">tail -f /var/log/syslog</pre>
+<p>Pasados unos minutos y tras pasar las comprobaciones veremos algunas líneas parecidas a estas:</p>
+<pre class="java" name="code">Sep 27 14:23:36 ubuntu nagios: SERVICE ALERT: localhost;HTTP;CRITICAL;SOFT;1;Connection refused
+Sep 27 14:24:36 ubuntu nagios: SERVICE ALERT: localhost;HTTP;CRITICAL;SOFT;2;Connection refused
+Sep 27 14:25:36 ubuntu nagios: SERVICE ALERT: localhost;HTTP;CRITICAL;SOFT;3;Connection refused
+Sep 27 14:26:36 ubuntu nagios: SERVICE ALERT: localhost;HTTP;CRITICAL;HARD;4;Connection refused
+Sep 27 14:26:36 ubuntu nagios: SERVICE NOTIFICATION: administrador2;localhost;HTTP;CRITICAL;notify-service-by-email;Connection refused
+Sep 27 14:26:36 ubuntu postfix/pickup[20383]: 338BE1BC64: uid=1001 from=
+Sep 27 14:26:36 ubuntu nagios: SERVICE NOTIFICATION: administrador1;localhost;HTTP;CRITICAL;notify-service-by-email;Connection refused
+Sep 27 14:26:36 ubuntu postfix/cleanup[25466]: 338BE1BC64: message-id=&lt;20100927212636.338BE1BC64@ubuntu.localdomain&gt;
+Sep 27 14:26:36 ubuntu postfix/qmgr[20385]: 338BE1BC64: from=, size=597, nrcpt=1 (queue active)
+Sep 27 14:26:36 ubuntu postfix/pickup[20383]: 5231E1BC62: uid=1001 from=
+Sep 27 14:26:36 ubuntu postfix/cleanup[25466]: 5231E1BC62: message-id=&lt;20100927212636.5231E1BC62@ubuntu.localdomain&gt;
+Sep 27 14:26:36 ubuntu postfix/qmgr[20385]: 5231E1BC62: from=, size=597, nrcpt=1 (queue active)
+Sep 27 14:26:39 ubuntu postfix/smtp[25475]: 5231E1BC62: to=, relay=smtp.gmail.com[74.125.157.109]:587, delay=3.1, delays=0.1/0.02/1.6/1.4, dsn=2.0.0, status=sent (250 2.0.0 OK 1285622811 e7sm6311584ybe.4)
+Sep 27 14:26:39 ubuntu postfix/qmgr[20385]: 5231E1BC62: removed
+Sep 27 14:26:39 ubuntu postfix/smtp[25474]: 338BE1BC64: to=, relay=smtp.gmail.com[74.125.157.109]:587, delay=3.6, delays=0.22/0.05/1.9/1.4, dsn=2.0.0, status=sent (250 2.0.0 OK 1285622812 u42sm9674777yba.12)
+Sep 27 14:26:39 ubuntu postfix/qmgr[20385]: 338BE1BC64: removed</pre>
+<p>Como podemos observar en el cuarto intento, ha intentado enviar las notificaciones a los contactos que hemos definido anteriormente.</p>
+<h3>Paso 37. Eliminar mensaje HOME usuario Nagios.</h3>
+<p>Cada vez que reiniciamos Nagios vemos este mensaje:</p>
+<pre class="java" name="code">Running configuration check...done.
+Stopping nagios: done.
+Starting nagios:No directory, logging in with HOME=/
+done.</pre>
+<p>y eso es debido a que no existe el directorio /home/nagios ya que el home directory del usuario Nagios está en:</p>
+<pre class="java" name="code">/usr/local/nagios</pre>
+<p>Para corregir esto, tan simple como editar el fichero:</p>
+<pre class="java" name="code">nano -w /etc/passwd</pre>
+<p>y en la línea del usuario Nagios en lugar de:</p>
+<pre class="java" name="code">/home/nagios</pre>
+<p>debemos poner:</p>
+<pre class="java" name="code">/usr/local/nagios</pre>
+<p>Bueno, y con esto ya nos hacemos una idea de cómo es y cómo funciona Nagios.</p>
+<p>Para más información sobre configuración: documentación oficial - googlear :D</p>
+<h3>ANEXO 1. Creación de grupos de servidores.</h3>
+<p>Para esta tarea vamos a modificar los ficheros de configuración de Nagios que vienen por defecto y que están alojados en el directorio:</p>
+<pre class="java" name="code">/usr/local/nagios/etc/objects</pre>
+<p>Así como el fichero de configuracion de Nagios:</p>
+<pre class="java" name="code">/usr/local/nagios/etc/nagios.cfg</pre>
+<h4>Paso 1. Hacer una copia de los ficheros actuales.</h4>
+<pre class="java" name="code">cp -p /usr/local/nagios/etc/nagios.cfg /usr/local/nagios/etc/nagios.cfg.original
+cp -p /usr/local/nagios/etc/objects/localhost.cfg /usr/local/nagios/etc/objects/localhost.cfg.original</pre>
+<h4>Paso 2. Creación del fichero de configuración para los grupos:</h4>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/grupos.cfg</pre>
+<p>Con el contenido:</p>
+<pre class="java" name="code">define hostgroup{
+hostgroup_name  servidores-linux
+alias           Servidores Linux
+members         localhost
+}</pre>
+<h4>Paso 3. Modificación del fichero localhost.cfg para quitar el grupo.</h4>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/localhost.cfg</pre>
+<p>Debemos quitar la definición de hostgroup que hemos puesto en el paso 1.</p>
+<p>Este sería el contenido completo del fichero localhost:</p>
+<pre class="java" name="code">define host{
+use                     linux-server
+host_name               localhost
+alias                   localhost
+address                 127.0.0.1
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             PING
+check_command            check_ping!100.0,20%!500.0,60%
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             Root Partition
+check_command            check_local_disk!20%!10%!/
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             Current Users
+check_command            check_local_users!20!50
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             Total Processes
+check_command            check_local_procs!250!400!RSZDT
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             Current Load
+check_command            check_local_load!5.0,4.0,3.0!10.0,6.0,4.0
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             Swap Usage
+check_command            check_local_swap!20!10
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             SSH
+check_command            check_ssh
+notifications_enabled        1
+}
+
+define service{
+use                             local-service
+host_name                       localhost
+service_description             HTTP
+check_command            check_http
+notifications_enabled        0
+}</pre>
+<p>Como podrán observar, en la definición del host en uso he dejado:</p>
+<pre class="java" name="code">define host{
+use                     linux-server</pre>
+<p>ya que este hace referencia al template del host y no al grupo que antes sí hemos cambiado su nombre a Servidores Linux (servidores-linux).</p>
+<h4>Paso 4. Añadir el nuevo fichero de configuración de grupos.</h4>
+<p>Para añadir este nuevo fichero a la configuración de Nagios debemos editar el fichero:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/nagios.cfg</pre>
+<p>Y buscar donde está la configuración de localhost y ponerlo encima, quedando asi:</p>
+<pre class="java" name="code"># Definitions for monitoring the local (Linux) host
+cfg_file=/usr/local/nagios/etc/objects/grupos.cfg
+cfg_file=/usr/local/nagios/etc/objects/localhost.cfg</pre>
+<p>Bien, con esto ya tenemos más separados la definición de host con sus servicios y los grupos. Hecho esto por higiene, ya que, como veremos en el anexo 2, teniéndolo así más separado, resulta bien sencillo añadir más hosts.</p>
+<h3>ANEXO 2. Añadir un host a un grupo.</h3>
+<p>Para añadir al host a un grupo, en nuestro caso al grupo creado en el anexo 1, seguiremos los siguientes pasos.</p>
+<h4>Paso 1. Creación del fichero de configuración del host.</h4>
+<p>Para este paso, lo recomendable es que partiendo del fichero localhost.cfg o de algún otro que sea de nuestro agrado, lo guardemos con un nombre que indique que nos sirve como base. Tal como:</p>
+<p>host_base.cfg</p>
+<p>o cualquier otro nombre de nuestra elección. Nosotros utilizaremos el fichero localhost.cfg como base y lo copiaremos con el nombre del nuevo host:</p>
+<pre class="java" name="code">cp -p /usr/local/nagios/etc/objects/localhost.cfg /usr/local/nagios/etc/objects/midominio.com.cfg</pre>
+<p>En este nuevo host, al ser remoto, sólo dejaremos el ping el ssh y el http. Asi pues, editamos el nuevo fichero para el nuevo host:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/midominio.com.cfg</pre>
+<p>Con el siguiente contenido:</p>
+<pre class="java" name="code">define host{
+use                     linux-server
+host_name               midominio.com
+alias                   midominio.com
+address                 10.21.112.2
+}
+
+define service{
+use                             local-service
+host_name                       midominio.com
+service_description             PING
+check_command            check_ping!100.0,20%!500.0,60%
+}
+
+define service{
+use                             local-service
+host_name                       midominio.com
+service_description             SSH
+check_command            check_ssh
+notifications_enabled        1
+}
+
+define service{
+use                             local-service
+host_name                       midominio.com
+service_description             HTTP
+check_command            check_http
+notifications_enabled        0
+}</pre>
+<h4>Paso 2. Agregar el nuevo fichero a la configuración de Nagios.</h4>
+<p>Editamos el fichero de configuración de Nagios:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/nagios.cfg</pre>
+<p>y justo debajo de la linea de localhost:</p>
+<pre class="java" name="code"># Definitions for monitoring the local (Linux) host
+cfg_file=/usr/local/nagios/etc/objects/grupos.cfg
+cfg_file=/usr/local/nagios/etc/objects/localhost.cfg</pre>
+<p>incluimos el nuevo fichero de nuestro nuevo host:</p>
+<pre class="java" name="code"># Definitions for monitoring the local (Linux) host
+cfg_file=/usr/local/nagios/etc/objects/grupos.cfg
+cfg_file=/usr/local/nagios/etc/objects/localhost.cfg
+cfg_file=/usr/local/nagios/etc/objects/asisco.info.cfg</pre>
+<h4>Paso 3. Añadir el nuevo host al grupo.</h4>
+<p>Editamos el fichero de los grupos:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/grupos.cfg</pre>
+<p>y al lado de localhost separado por el simbolo coma (,), ponemos el nombre de nuestro nuevo host, quedando el fichero como sigue:</p>
+<pre class="java" name="code">define hostgroup{
+hostgroup_name  servidores-linux
+alias           Servidores Linux
+members         localhost,asisco.info
+}</pre>
+<h4>Paso 4. Comprobamos que la configuración sea correcta.</h4>
+<pre class="java" name="code">/usr/local/nagios/bin/nagios -v /usr/local/nagios/etc/nagios.cfg</pre>
+<p>Al final de la salida debemos ver:</p>
+<p>Total Warnings: 0<br />
+Total Errors:   0</p>
+<p>Paso 5. Reiniciamos Nagios.</p>
+<pre class="java" name="code">/etc/init.d/nagios restart</pre>
+<p>Con estos simples pasos, ya debemos ver el nuevo host en la administración de Nagios en estado pendiente de comprobaciones, las cuales se realizarán pasados unos momentos.</p>
+<h3>ANEXO 3. Comprobación servicio Tomcat.</h3>
+<h4>Paso 1. Agregar el comando:</h4>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/commands.cfg</pre>
+<p>añadiendo al final del mismo el siguiente bloque:</p>
+<pre class="java" name="code">define command{
+command_name    check_tomcat
+command_line    $USER1$/check_http -p 8080 -I $HOSTADDRESS$ $ARG1$
+}</pre>
+<h4>Paso 2. Añadir el servicio al host.</h4>
+<p>Para cualquier host que queramos comprobar si el Tomcat está funcionando bastará con editar el fichero del host en cuestión y añadir al final:</p>
+<p>(por ejemplo nuestro host midominio.com definido en el fichero midominio.com.cfg)</p>
+<pre class="java" name="code">define service{
+use                             local-service         ; Name of service template to use
+host_name                       midominio.com
+service_description             TOMCAT
+check_command            check_tomcat
+notifications_enabled        0
+}</pre>
+<h3>ANEXO 4. Comprobación servicio MySQL.</h3>
+<h4>Paso 1. Instalar las librerías mysql client junto a mysql_config.</h4>
+<p>Dependiendo de la distribución, la instalación será de un modo u otro, pero para nuestro caso, en una Ubuntu 8.04 (debian), la instalación sería:</p>
+<pre class="java" name="code">apt-get install libmysqlclient15-dev</pre>
+<h4>Paso 2. Compilación del plugin.</h4>
+<p>Repetir el paso Paso 17 del manual de instalación y configuración de Nagios.</p>
+<h4>Paso 3. Creación del comando check_mysql.</h4>
+<p>Editamos el fichero:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/commands.cfg</pre>
+<p>y al final del mismo añadimos:</p>
+<pre class="java" name="code">define command{
+command_name check_mysql
+command_line $USER1$/check_mysql -H $HOSTADDRESS$ -P $ARG1$ -u $ARG2$ -p $ARG3$
+}</pre>
+<h4>Paso 4. Creamos el servicio para los hosts que queramos comprobar.</h4>
+<p>En nuestro caso y siguiendo con el host midominio.com editamos el fichero:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/midominio.com</pre>
+<p>y al final añadimos:</p>
+<pre class="java" name="code">define service{
+use                local-service
+host_name             midominio.com
+service_description         MYSQL
+max_check_attempts         1
+normal_check_interval         2
+check_command             check_mysql!3306!monitor!monitorpass
+}</pre>
+<p>De este último bloque hay que destacar la ultima línea:</p>
+<pre class="java" name="code">check_command             check_mysql!3306!monitor!monitorpass</pre>
+<p>ya que en ella se encuentran los datos de conexión al servidor de MySQL del host midominio.com.</p>
+<p>Tras el nombre del comando:</p>
+<p>check_mysql</p>
+<p>encontramos los datos de puerto usuario y password separador por el carácter:</p>
+<p>!</p>
+<h4>Paso 5. Creación de acceso remoto de MySQL para Nagios.</h4>
+<p>En el host remoto donde tengamos el servidor de MySQL que queramos monitorear, en nuestro midominio.com, debemos acceder a la consola de MySQL como administrador y ejecutar la siguiente orden:</p>
+<pre class="java" name="code">CREATE DATABASE monitor;
+GRANT ALL PRIVILEGES ON monitor.* TO monitor@IP.SERVIDCOR.NAGIOS IDENTIFIED BY 'monitorpass' WITH GRANT OPTION;
+FLUSH PRIVILEGES;</pre>
+<p>Con esas instrucciones, aseguramos que desde la IP del servidor Nagios podemos acceder a la base de datos monitor.</p>
+<h3>ANEXO 5. Notificacion por SMS.</h3>
+<p>Si queremos que Nagios nos notifique vía SMS de un servicio caído, los pasos a seguir son sencillos.</p>
+<h4>Paso 1. Creación comando, para lo cual añadiremos y editaremos el fichero:</h4>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/commands.cfg</pre>
+<p>y añadiremos al final:</p>
+<pre class="java" name="code">define command{
+command_name    service-notify-by-sms
+command_line    /usr/bin/wget --no-check-certificate "https://www.12voip.com/myaccount/sendsms.php?username=xxxxx&amp;password=xxxxx&amp;from=xxxxx&amp;to=xxxxxxx&amp;text='GEREMIASv340 hawk ... Service Notification -- Host: $HOSTNAME$, State: $HOSTSTATE$ Service $SERVICEDESC$ Description: $SERVICESTATE$ Time: $LONGDATETIME"
+}</pre>
+<p>Donde los parametros de la URL deberán ser cambiados por los de tu cuenta SIP 12voip.com.</p>
+<p>from: nombre usuario<br />
+to: numero del telefono deber ser formato internacional, por ejemplo: +57300123123</p>
+<h4>Paso 2. Modificar el template de contactos.</h4>
+<p>Editamos el fichero:</p>
+<pre class="java" name="code">nano -w /usr/local/nagios/etc/objects/templates.cfg</pre>
+<p>y lo dejamos como sigue:</p>
+<p># Generic contact definition template - This is NOT a real contact, just a template!</p>
+<pre class="java" name="code">define contact{
+name                            generic-contact
+service_notification_period     24x7
+host_notification_period        24x7
+service_notification_options    w,u,c,r,f,s
+host_notification_options       d,u,r,f,s
+service_notification_commands   notify-service-by-email,service-notify-by-sms
+host_notification_commands      notify-host-by-email
+register                        0
+}</pre>
+<h4>Paso 3. Reiniciamos Nagios.</h4>
+<pre class="java" name="code">/etc/init.d/nagios restart</pre>
+<p>Artículo Original: http://www.elmurodelsaber.com/<br />
+A partir de este momento las notificación serán enviadas mediante SMS.</p>

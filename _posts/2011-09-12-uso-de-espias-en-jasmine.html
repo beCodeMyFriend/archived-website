@@ -1,0 +1,118 @@
+---
+layout: post
+status: publish
+published: true
+title: Uso de espías en Jasmine
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2093
+wordpress_url: http://www.becodemyfriend.com/?p=2093
+date: '2011-09-12 10:11:02 +0000'
+date_gmt: '2011-09-12 09:11:02 +0000'
+categories:
+- Programación
+tags:
+- Agilismo
+- Manuales
+- Programación
+- Artesanía del software
+---
+<p>Jasmine incorpora espías que nos permiten “espiar” cuando un método es llamado. Bien sea de objetos de nuestro entorno, o algún tipo de mock, fake, stub…</p>
+<p>Hay que destacar que estas características con los matchers de spy, están disponibles para las últimas versiones de Jasmine del modo en que se usa en este documento.</p>
+<p>Estos espías son realmente simples de usar viéndolo con un ejemplo sencillo. Sus métodos de uso más comunes.</p>
+<p>Comprobando que una función o método es llamado:</p>
+<pre name="code" class="javascript">var car = function(){};</pre>
+<p>Ahora vamos a crear un método estático sobre nuestra instancia car:</p>
+<pre name="code" class="javascript">
+car.create = function(name)
+
+{
+
+return "car create with name " + name;
+
+}
+</pre>
+<p>Ahora veamos cómo probaríamos este comportamiento con Jasmine:</p>
+<pre name="code" class="javascript">
+describe("jasmine spy test", function()
+
+{
+
+it('spying method create over car', function()
+
+{
+
+var car = function(){};
+
+car.create = function(name)
+
+{
+
+return "car create with name " + name;
+
+}
+
+spyOn(car, 'create');
+
+car.create('a name');
+
+expect(car.create).toHaveBeenCalled();
+
+});
+
+});
+</pre>
+<p>Aquí vemos el uso más básico de <em>“spyOn”</em>, que es a través de su matcher <em>“toHaveBeenCalled”</em>. El cual evalúa si el método indicado ha sido llamado.</p>
+<p>Otro matcher de interés es cuando, además de comprobar que un método ha sido llamado, queremos comprobar el valor de los parámetros enviados a dicho método. Para lo cual haremos uso del matcher <em>“toHaveBeenCalledWith(value)”</em>.</p>
+<p>Así pues, nuestro siguiente case sería:</p>
+<pre name="code" class="javascript">
+it('spying method create over car', function()
+
+{
+
+var car = function(){};
+
+car.create = function(name)
+
+{
+
+return "car create with name " + name;
+
+}
+
+spyOn(car, 'create');
+
+car.create('a name');
+
+expect(car.create).toHaveBeenCalledWith('a name');
+
+});
+
+it('spying method create over car', function()
+
+{
+
+var car = function(){};
+
+car.create = function(name)
+
+{
+
+return "car create with name " + name;
+
+}
+
+spyOn(car, 'create');
+
+car.create('a name');
+
+expect(car.create).toHaveBeenCalledWith('a name');
+
+});
+</pre>
+<p>Happy testing!</p>

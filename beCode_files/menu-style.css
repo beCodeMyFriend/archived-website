@@ -1,0 +1,77 @@
+nav {
+    display: block;
+	position: fixed;
+	top:0;
+	left:0;
+}
+
+#opacity {
+	background-color:#8BA704;
+	opacity:0.6;
+}
+
+.no-opacity #opacity{
+	filter: alpha(opacity = 60);
+}
+
+nav ul {
+	position: fixed;
+	top:20%;
+	left:0;
+	background-color:white;
+	opacity:1.0;
+	margin:0px;
+}
+nav > ul li {
+	width: 100%;
+	display:block;
+	position:relative;
+	opacity:1.0;
+	cursor: pointer;
+}
+
+#menu div {
+	width:40px;
+	height:40px;
+}
+
+/** Icons by Visual Pharm http://www.visualpharm.com/ **/
+
+#menu-becode {
+	background:url('./idea.png') top left no-repeat;
+	background-position:center;
+}
+#menu-team{
+	background:url('./sport.png')top left no-repeat;
+	background-position:center;
+}
+#menu-projects{
+	background:url('./mixer.png')top left no-repeat;
+	background-position:center;
+}
+#menu-contact{
+	background:url('./contact.png')top left no-repeat;
+	background-position:center;
+}
+
+#menu-projects:hover{
+	background:url('./mixer-white.png')top left no-repeat;
+}
+#menu-contact:hover{
+	background:url('./contact-white.png')top left no-repeat;
+}
+#menu-team:hover{
+	background:url('./sport-white.png')top left no-repeat;
+}
+#menu-becode:hover {
+	background:url('./idea-white.png') top left no-repeat;
+}
+
+#menu-becode:hover,
+#menu-team:hover,
+#menu-projects:hover,
+#menu-contact:hover
+{
+	background-color: #0F0f0f;
+	background-position:center;
+}

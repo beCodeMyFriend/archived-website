@@ -1,0 +1,43 @@
+---
+layout: post
+status: publish
+published: true
+title: Problema con Sinatra ImageMagick RMagick en Mac
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2607
+wordpress_url: http://www.becodemyfriend.com/?p=2607
+date: '2012-01-11 10:47:41 +0000'
+date_gmt: '2012-01-11 09:47:41 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Ruby
+- Sinatra
+- Mac
+---
+<div style="text-align: justify;">Recientemente me encontré con un problema con el uso de la <a title="RMagick" href="http://rmagick.rubyforge.org/" target="_blank">gema RMagick</a> mediante peticiones Sinatra, obviamente con ImageMagick de por medio. Este problema surgió en un entorno Mac por lo que desconozco si ocurre en otros entornos.&nbsp;</p>
+<p>La solución pasa por recompilar las librerías ImageMagick con la opción</p>
+<pre class="java" name="code">--disable-openmp</pre>
+<p>Desde la utilidad <em>“Port”</em>, que es  la que uso en Mac para recompilar esta librería, tuve primero que desinstalarla</p>
+<pre class="java" name="code">sudo port uninstall ImageMagick</pre>
+<p>acto seguido, editar la configuración del paquete</p>
+<pre class="java" name="code">sudo port edit ImageMagick</pre>
+<p>sobre la linea 100 poner una linea linea</p>
+<pre class="java" name="code">--disable-openmp</pre>
+<p>y volver a instalarlas:</p>
+<pre class="java" name="code">sudo port install ImageMagick</pre>
+<p>Después de eso tuve que desinstalar la gema y volverla a instalar</p>
+<pre class="java" name="code">sudo gem uninstall rmagick
+sugo gem install rmagick</pre>
+</div>
+<h3>Entradas similares:</h3>
+<p><a title="Undefined method 'dirname' for RacK::File:Class" href="http://www.becodemyfriend.com/2011/10/undefined-method-dirname%e2%80%99-for-rackfileclass/" target="_blank">Undefined method 'dirname' for Rack::File:Class</a></p>
+<p><a title="Instalación de la extensión PHP OAuth en Mac OS X 10.6 Snow Leopard" href="http://www.becodemyfriend.com/2010/11/instalacion-de-la-extension-php-oauth-en-mac-os-x-10-6-snow-leopard/" target="_blank">Instalación de la extensión PHP OAuth en Mac OS X 10.6 Snow Leopard</a></p>
+<p><a title="Cómo instalar php5-memcached en Mac OS X Snow Leopard (10.6)" href="http://www.becodemyfriend.com/2010/10/como-instalar-php5-memcached-en-mac-os-x-snow-leopard-10-6/" target="_blank">Cómo instalar php5-memcached en Mac OS X Snow Leopard (10.6)</a></p>

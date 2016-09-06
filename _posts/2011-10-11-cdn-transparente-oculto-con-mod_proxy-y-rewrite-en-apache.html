@@ -1,0 +1,94 @@
+---
+layout: post
+status: publish
+published: true
+title: CDN transparente oculto con mod_proxy y rewrite en Apache
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2119
+wordpress_url: http://www.becodemyfriend.com/?p=2119
+date: '2011-10-11 17:13:43 +0000'
+date_gmt: '2011-10-11 16:13:43 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Linux
+- Apache
+---
+<p>Un escenario que puede interesarnos cuando tenemos centralizado un CDN con imágenes de varios sites es querer ocultar el origen de dichas imágenes.</p>
+<p>Una solución pasa por hacer uso del mod_proxy y el mod_rewrite de Apache conjuntamente.</p>
+<h3>Paso 1. Configuración del host para proxy.</h3>
+<p>Hemos usado Ubuntu con Apache 2, por lo que nuestro fichero de configuración del host está ubicado en:</p>
+<pre class="java" name="code">/etc/apache2/sites-available/midominio.com</pre>
+<p>con el contenido:</p>
+<pre class="java" name="code">&lt;VirtualHost xxx.xxx.xxx.xxx:80&gt;
+    ServerName midominio.com
+    ServerAlias midominio.com
+    DocumentRoot /var/vhosts/midominio.com/public
+    ProxyRequests On
+    ProxyVia On
+
+    &lt;Directory "/var/vhosts/midominio.com/public"&gt;
+        AllowOverride all
+        Options -Multiviews
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;</pre>
+<p>Como vemos, las directivas:</p>
+<pre class="java" name="code">ProxyRequests On
+ProxyVia On</pre>
+<p>nos indican que, para este virtual host, vamos a usar el mod_proxy</p>
+<h3>Paso 2. Activación del mod_proxy en Apache.</h3>
+<p>Los módulos que queremos activar para proxy son:</p>
+<pre class="java" name="code">proxy
+proxy_http</pre>
+<p>para lo que, dependiendo de nuestra distribución, se debe hacer de un modo u otro. Para una Ubuntu bastaría con:</p>
+<pre class="java" name="code">cd /etc/apache2/mods-enabled/
+ln -s ../mods-available/proxy.load .
+ln -s ../mods-available/proxy_http.load .
+/etc/init.d/apache2 restart</pre>
+<h3>Paso 3. Reglas de redirección y proxying.</h3>
+<p>Dentro de nuestro htdocs, definido en el fichero de configuración del virtual host:</p>
+<pre class="java" name="code">&lt;Directory "/var/vhosts/midominio.com/public"&gt;</pre>
+<p>crearemos un fichero llamado:</p>
+<pre class="java" name="code">.htaccess</pre>
+<p>con el contenido:</p>
+<pre class="java" name="code">RewriteEngine On
+
+RewriteCond %{HTTP_HOST} !^www\.midominio\.com$
+RewriteCond %{HTTP_HOST} !^cdn\.midominio\.com$
+RewriteRule (.*) http://www.midominio.com/$1 [R=301,L]
+
+RewriteCond %{HTTP_HOST} ^cdn.midominio.com$
+RewriteRule (.*) http://cdn.repositoriodeimagenes.com/$1 [P,L]</pre>
+<p>La primera línea:</p>
+<pre class="java" name="code">RewriteEngine On</pre>
+<p>es simplemente para activar el mod_rewrite y poder darle condiciones de comportamiento.</p>
+<p>Las 3 siguientes líneas:</p>
+<pre class="java" name="code">RewriteCond %{HTTP_HOST} !^www\.midominio\.com$
+RewriteCond %{HTTP_HOST} !^cdn\.midominio\.com$
+RewriteRule (.*) http://www.midominio.com/$1 [R=301,L]</pre>
+<p>son para asegurarnos de que si alguien pone la URL sin las www, nosotros hacemos una reescritura de la URL con las www.</p>
+<p>Y las ultimas líneas es donde está la acción que buscamos:</p>
+<pre class="java" name="code">RewriteCond %{HTTP_HOST} ^cdn.midominio.com$
+RewriteRule (.*) http://cdn.repositoriodeimagenes.com/$1 [P,L]</pre>
+<p>Ahí le estamos diciendo que toda petición a:</p>
+<pre class="java" name="code">cdn.midominio.com</pre>
+<p>la redirección a</p>
+<pre class="java" name="code">http://cdn.repositoriodeimagenes.com</pre>
+<p>haciendo uso del proxy:</p>
+<pre class="java" name="code">[P,L]</pre>
+<p>Para hacer uso de este método, las imágenes de nuestro site deben tener la URL del siguiente modo:</p>
+<pre class="java" name="code">&lt;img src="http://cdn.midominio.com/imagen1.jpg"/&gt;</pre>
+<p>Y las imágenes reales deben estar en:</p>
+<pre class="java" name="code">http://cdn.repositoriodeimagenes.com</pre>
+<p>&nbsp;</p>
+<h3>Entradas similares:</h3>
+<p><a title="Quitar mongod.lock en Ubuntu" href="http://www.becodemyfriend.com/2011/09/quitar-mongod-lock-en-ubuntu/" target="_blank">Quitar mongod.lock en Ubuntu</a></p>
+<p><a title="Uso del mod_proxy de Apache para subdominios" href="http://www.becodemyfriend.com/2011/09/uso-del-mod_proxy-de-apache-para-subdominios/" target="_blank">Uso del mod_proxy de Apache para subdominios</a></p>
+<p><a title="Instalación de un entorno de despliegue Apache + Ruby + Mongodb + Sinatra en Ubuntu 11.04 Server Linux" href="http://www.becodemyfriend.com/2011/08/instalacion-de-un-entorno-de-despliegue-apache-ruby-mongodb-sinatra-en-ubuntu-11-04-server-linux/" target="_blank">Instalación de un entorno de despliegue Apache + Ruby + Mongodb + Sinatra en Ubuntu 11.04 Server Linux</a></p>

@@ -1,0 +1,33 @@
+#team .photo {
+	height:140px;
+}
+
+.font-medium, .blogtext, .tag {
+    font-size: 0.5em;
+}
+
+.tags {
+    line-height: 0.6em;
+}
+
+.member {
+	height:450px;
+}
+
+.project .button {
+    left: 20%;
+}
+
+.button p {
+	font-size: 0.6em;
+}
+
+.grid-4 { width:29.167% }
+
+#greetings {
+	float:right;
+}
+
+.contributions{
+	width:280px;
+}

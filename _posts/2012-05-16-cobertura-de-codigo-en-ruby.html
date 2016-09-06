@@ -1,0 +1,130 @@
+---
+layout: post
+status: publish
+published: true
+title: Cobertura de código en Ruby
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2761
+wordpress_url: http://www.becodemyfriend.com/?p=2761
+date: '2012-05-16 07:50:38 +0000'
+date_gmt: '2012-05-16 06:50:38 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- TDD
+- Ruby
+- integracion continua
+- coverage
+- rcov
+- simplecov
+---
+<div style="text-align: justify;">Para esta pequeña guía sobre la cobertura de código voy a basarme en un caso real sobre un proyecto basado en Ruby en la parte servidor y Javascript en la parte cliente (SOUI/FEA).&nbsp;</p>
+<p>En la parte de Ruby, que es la que se quiso inspeccionar, se tienen diversas baterías de test como los unitarios, los de integración y otros de API y funcionales mediante Cucumber.</p>
+<p>Partiendo de esta base, se quiso añadir al proceso de integración contínua alguna herramienta de cobertura de test para poder ver el alcance de lo que estaba cubierto por test.</p>
+<p>En este punto, cabe destacar que los test funcionales y/o de API no iban a formar parte de esta inspección de cobertura ya que son llamadas HTTP a métodos remotos (o locales) y nos sería imposible inspeccionar qué código ejecutan.</p>
+<p>Así pues, tendríamos que inspeccionar el código de test de los unitarios y de los funcionales.</p>
+<p>Empezaremos primero con el fichero <em>Rakefile</em> del proyecto, viendo qué tareas tenía y cómo fue evolucionando para integrar la cobertura.</p>
+<p>Las tareas de test están separadas por comodidad en el desarrollo</p>
+<pre class="java" name="code">RSpec::Core::RakeTask.new(:spec)do |t|
+    t.pattern = "test/unit/*_spec.rb"
+    t.rspec_opts = "-Ilib -c"
+end
+
+RSpec::Core::RakeTask.new(:integration)do |t|
+    t.pattern = "test/integration/*_spec.rb"
+    t.rspec_opts = "-Ilib -c"
+end
+
+RSpec::Core::RakeTask.new(:services) do |t|
+    t.pattern = "test/services/*_spec.rb"
+    t.rspec_opts = "-Ilib -c"
+end</pre>
+<p>y después, para la integración contínua para el Jenkins, se tiene otra que<br />
+va llamando una tras otra estas tareas de test más las de Cucumber</p>
+<pre class="java" name="code">task :all_specs do
+	ENV['RACK_ENV'] = 'production'
+	Rake::Task['server_up'].execute
+	Rake::Task['spec'].execute
+	Rake::Task['integration'].execute
+	Rake::Task['services'].execute
+	Rake::Task['features'].execute
+	Rake::Task['server_down'].execute
+end</pre>
+<p>Este es el escenario que se tiene antes de la implementación de la cobertura.</p>
+<p>Tras mucho probar con todo tipo de gemas y otras sandeces como <em>'rcov cover_me etc'</em>, por problemas de compatibilidad de contexto entre <em>Rakefile</em> y el código <em>'etc etc'</em>, lo mejor que he podido montar ha sido con una gema llamada</p>
+<pre class="java" name="code">simplecov</pre>
+<p>la cual permite salida tanto en HTML como en formato <em>rcov</em>.</p>
+<p>Lo primero fue poner en el <em>Gemfile</em> las gemas necesarias al final del fichero</p>
+<pre class="java" name="code">gem "simplecov", "0.5.4"
+gem "simplecov-html", "0.5.3"</pre>
+<p>Las versiones son las últimas en el momento de escribir este artículo. También<br />
+indicar que si se quiere salida en formato <em>rcov</em> tambien tendría que añadir la gema</p>
+<pre class="java" name="code">simplecov-rcov</pre>
+<p>Una vez hecho esto las instalamos</p>
+<pre class="java" name="code">sudo bundle install</pre>
+<p>Y una vez instalamos, continuamos.</p>
+<p>Tenemos nuestras tareas en el <em>Rakefile</em>, nuestras gemas de cobertura y ahora ya empezamos a montar todo el tinglado.</p>
+<p>Tras darme de frente mil veces intentando lanzar la cobertura desde el <em>Rakefile</em> antes de ejecutar los test, me di cuenta que la única forma era polucionar un poco los test. Para lo cual me creé un directorio en raíz del proyecto llamado</p>
+<pre class="java" name="code">resources</pre>
+<p>con un fichero llamado</p>
+<pre class="java" name="code">proyecto_coverage.rb</pre>
+<p>el cual contiene los <em>require</em> de <em>simplecov</em> y la llamada necesaria para que empiece<br />
+la inspección</p>
+<pre class="java" name="code">require 'simplecov'
+require 'simplecov-html'
+
+SimpleCov.formatter = SimpleCov::Formatter::HTMLFormatter
+SimpleCov.start do
+    add_filter "test"
+end</pre>
+<p>En este fichero indico que la salida será en HTML y que ignore todo lo que contenga la palabra <em>test</em>.</p>
+<p>Este fichero me obligaba a modificar mis tareas de test para incluir en su <em>INCLUDE DIR</em> la ruta de mi nuevo directorio <em>resources</em> y además creé una nueva tarea que sólo lanzará los tests que yo quería que fueran cubiertos. Así pues, las tareas de test fueron modificadas</p>
+<pre class="java" name="code">RSpec::Core::RakeTask.new(:spec)do |t|
+    t.pattern = "test/unit/*_spec.rb"
+    t.rspec_opts = "-Iresources -Ilib -c" #&lt;- EL CAMBIO (-Iresources)
+end
+
+RSpec::Core::RakeTask.new(:integration)do |t|
+    t.pattern = "test/integration/*_spec.rb"
+    t.rspec_opts = "-Iresources -Ilib -c" #&lt;- EL CAMBIO (-Iresources)
+end
+
+RSpec::Core::RakeTask.new(:services) do |t|
+    t.pattern = "test/services/*_spec.rb"
+    t.rspec_opts = "-Iresources -Ilib -c" #&lt;- EL CAMBIO (-Iresources)
+end</pre>
+<p>y la nueva tarea</p>
+<pre class="java" name="code">RSpec::Core::RakeTask.new(:coverage)do |t|
+    t.pattern = "test/{unit,integration}/*_spec.rb"
+    t.rspec_opts = "-Iresources -Ilib -c"
+end</pre>
+<p>Con todo esto hecho, sólo me quedaba modificar la tarea que se lanzaba desde el Jenkins como sigue</p>
+<pre class="java" name="code">task :all_specs do
+	ENV['RACK_ENV'] = 'production'
+	Rake::Task['server_up'].execute
+	Rake::Task['coverage'].execute
+        Rake::Task['services'].execute
+	Rake::Task['features'].execute
+	Rake::Task['server_down'].execute
+end</pre>
+<p>y en cada uno de los ficheros de test, tanto unitarios como de integración, añadir como primera línea el <em>require</em> de mi fichero de cobertura:</p>
+<pre class="java" name="code">require 'proyecto_coverage'</pre>
+<p>Con esto hecho bastaria con ejecutar la tarea</p>
+<pre class="java" name="code">rake coverage</pre>
+<p>y ver que nos creaba un directorio llamado</p>
+<pre class="java" name="code">coverage</pre>
+<p>con un bonito HTML navegable de forma estática.</p>
+<p>A modo de ejemplo, decir que nosotros desplegamos este HTML con cada ejecución del Jenkins en un servidor de integración continua para poderlo ver con cada <em>commit</em> del Git.</p>
+<p>Happy covering :)</p>
+</div>
+<h3>Entradas Similares</h3>
+<p><a title="Problema con Sinatra Imagemagick Rmagick en Mac" href="http://www.becodemyfriend.com/2012/01/problema-con-sinatra-imagemagick-rmagick-en-mac/" target="_blank">Problema con Sinatra Imagemagick Rmagick en Mac</a></p>
+<p><a title="Undefined method `dirname' for Rack::File:Class" href="http://www.becodemyfriend.com/2011/10/undefined-method-dirname%e2%80%99-for-rackfileclass/" target="_blank">Undefined method `dirname' for Rack::File:Class</a></p>
+<p><a title="Instalación y configuración sistema de integración contínua Jenkins con autorización HTTP basic Tomcat" href="http://www.becodemyfriend.com/2011/12/instalacion-y-configuracion-sistema-integracion-continua-jenkins-con-autorizacion-http-basic-tomcat/" target="_blank">Instalación y configuración sistema de integración contínua Jenkins con autorización HTTP basic Tomcat</a></p>

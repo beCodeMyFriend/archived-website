@@ -1,0 +1,53 @@
+---
+layout: post
+status: publish
+published: true
+title: Uso del mod_proxy de Apache para subdominios
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2101
+wordpress_url: http://www.becodemyfriend.com/?p=2101
+date: '2011-09-20 11:53:36 +0000'
+date_gmt: '2011-09-20 10:53:36 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Sistemas
+- Linux
+---
+<p>Requerimiento</p>
+<p>Redireccionar internamente y de manera transparente  una URL del tipo</p>
+<pre class="java" name="code">http://abc.dominio.com/</pre>
+<p>a la URL</p>
+<pre class="java" name="code">http://dominio.com/abc</pre>
+<p>sin que el navegante tenga presente el cambio en la URL de su  navegador. Para tal fin debemos activar primeramente los módulos:</p>
+<pre class="java" name="code">proxy
+
+proxy_http</pre>
+<p>para lo que, dependiendo de nuestra distribución, se haga de un modo u otro. Por ejemplo, para Debian,  bastaría hacer:</p>
+<pre class="java" name="code">cd /etc/apache2/mods-enabled/
+
+ln -s ../mods-available/proxy.load .
+
+ln -s ../mods-available/proxy_http.load .</pre>
+<p>Lo segundo es, dentro de nuestro vhost, activar el proxy  poniendo debajo de la directiva:</p>
+<pre class="java" name="code">ServerName dominio.com</pre>
+<p>las siguientes líneas</p>
+<pre class="java" name="code">ServerAlias *.dominio.com
+
+ProxyRequests On
+
+ProxyVia On</pre>
+<p>Por último, dentro del directorio 'httpdocs' creamos el  fichero '.htaccess' con el siguiente contenido:</p>
+<pre class="java" name="code">RewriteEngine On
+
+RewriteCond %{HTTP_HOST} ^(.+).dominio.com$
+
+RewriteRule (.*) http://dominio.com/%1 [P]</pre>
+<p>Recordar que en nuestra zona DNS debemos tener un registro tipo A que apunte a * (wildcard subdomain DNS)</p>

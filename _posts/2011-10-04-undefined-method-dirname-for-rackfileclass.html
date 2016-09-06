@@ -1,0 +1,30 @@
+---
+layout: post
+status: publish
+published: true
+title: Undefined method `dirname’ for Rack::File:Class
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2186
+wordpress_url: http://www.becodemyfriend.com/?p=2186
+date: '2011-10-04 11:29:43 +0000'
+date_gmt: '2011-10-04 10:29:43 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Ruby
+---
+<p>Al deployear sobre un passenger, este me devuelve la siguiente salida de error por el navegador:</p>
+<pre class="java" name="code">undefined method `dirname’ for Rack::File:Class</pre>
+<p>Para versiones de Ruby 1.9.1 o superior, una solución pasa por editar el fichero:</p>
+<pre class="java" name="code">config.ru</pre>
+<p>y cambiar las llamadas estáticas de:</p>
+<pre class="java" name="code">File</pre>
+<p>por:</p>
+<pre class="java" name="code">::File</pre>

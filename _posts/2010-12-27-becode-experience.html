@@ -1,0 +1,42 @@
+---
+layout: post
+status: publish
+published: true
+title: beCode Experience
+author:
+  display_name: Emma
+  login: Emma
+  email: eraseunavez@gmail.com
+  url: http://www.becodemyfriend.com
+author_login: Emma
+author_email: eraseunavez@gmail.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 559
+wordpress_url: http://www.becodemyfriend.com/?p=559
+date: '2010-12-27 18:13:59 +0000'
+date_gmt: '2010-12-27 17:13:59 +0000'
+categories:
+- Programación
+tags:
+- Agilismo
+- internship
+- Programación
+---
+<p>Hace tiempo decidí pasar una semana con la gente de beCode. Este post pretende ser una pequeña crónica contando la experiencia. Fue una semana muy buena donde participé de su buen rollo y me caló su compromiso y su actitud de mejora contínua.</p>
+<p>Pero al lío. El proyecto escogido fue refactorización de componentes escritos sobre mootools.<br />
+Se trata sobre todo de aprender, cuestionar, razonar y mejorar.</p>
+<p>El primer día vimos la arquitectura y la orquestación de mensajes entre los componentes, se cuantificó el trabajo, se hicieron las tarjetitas y se pusieron en un panel kanban. Como vengo de equipos donde en un mismo sprint trabajan con varios proyectos, los que usan colores, los usan para distinguir proyectos. Pero aquí, usamos los colores para identificar la naturaleza de la tarea en base a su planificación. Así tenemos:</p>
+<ul>
+<li> Tarjetas amarillas: son las tareas planificadas, al principio todo es amarillo.</li>
+<li>Tarjetas verdes: son tareas que no has planificado, pero son necesarias para probar la historia de usuario.</li>
+<li> Tarjetas grises: ups! deuda técnica, posibles mejoras o fallos internos que encuentras, que no impiden la consecución de la historia de usuario pero que no son triviales de acometer. Se apuntan y se gestionan.</li>
+<li> Tarjetas rojas: alarm! alarm! bugs que paralizan el desarrollo, máxima prioridad.</li>
+</ul>
+<p>En el proyecto de refactorización solo salieron amarillas y dos o tres grises, de las cuales pude acometer una.</p>
+<p>El core de la semana se pasó refactorizando a saco. Primero el test y luego la clase. Aprendí a querer a Chuck y a no violar el SUT, pobrecico - Javascript es tan maleable que al no tener conceptos de privado/público y poder extender un objeto en cualquier momento de su vida, tienes que tener las ideas muy claras para aplicar mocks y stubs donde tocan, pero eso da para otro post...</p>
+<p>Haciendo pair programmig con Xavi no sólo aprendes sobre el dominio del problema y a hacer código elegante, limpio y semántico (más te vale, si no capón que te llevas); también aprendes cómo hacer un buen pair programming. Una de las cosas que mas me llamó la atención es que no necesitaba arrebatar el teclado para guiar o resolver (como me pasa a mi a veces), tiene la paciencia de hacerte ver la idea para que seas tú quien la materialice.</p>
+<p>El jueves salió la discusión de que es un <a href="http://en.wikipedia.org/wiki/Domain_model" target="_blank">dominio</a>, que es un <a href="http://en.wikipedia.org/wiki/Data_transfer_object" target="_blank">dto</a> y que un rich object, quién ve a quién, qué mensajes se mandan, quién persiste y el qué. Es muy bueno tener una pizarra a mano para plasmar ideas que a uno le sacuden los cimientos, pero como los conceptos macerados a lo largo de años pesan sobre el entendimiento, decidimos hacer un pequeño ejemplo funcional el viernes para aclarar ideas.</p>
+<p>El proyecto: un blog.<br />
+Primera historia: el usario quiere poder añadir una nueva entrada y verlas ordenadas por fecha.</p>
+<p>Sacamos las tareas (tarjetitas amarillas e incluso luego salio una verde!). Fue aquí cuando la repetición se iba convirtiendo en costumbre y me sentí perdida por primera vez  ante un desarrollo nuevo por no tener test asociado primero. Vimos la separación entre el dominio (y su modelo)  y la interfaz (y su modelo). Es una separacion natural si practicas MVC, pero si usas algo tipo asp.net o jsf (del resto no he tocado tanto como para poder afirmar esto), es como hacer test sobre javascript: tienes que tener las ideas muy claras  para no acabar violando capas.</p>
+<p>Pudimos terminar la historia y discutir sobre extensiones de funcionalidad (persistencia, reestructuración ante nuevas funcionalidades, etc) .Y hasta aquí dio mi semana. Nos despedimos con una comida y un hasta pronto. ^_^</p>

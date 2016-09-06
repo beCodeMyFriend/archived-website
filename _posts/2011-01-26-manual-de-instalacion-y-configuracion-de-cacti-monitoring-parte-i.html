@@ -1,0 +1,201 @@
+---
+layout: post
+status: publish
+published: true
+title: Manual de instalación y configuración de Cacti - Monitoring Parte I
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 545
+wordpress_url: http://www.becodemyfriend.com/?p=545
+date: '2011-01-26 15:23:26 +0000'
+date_gmt: '2011-01-26 14:23:26 +0000'
+categories:
+- Programación
+tags:
+- Manuales
+- Programación
+- Sistemas
+- Linux
+---
+<p>Este <strong>manual</strong> describe la <strong>instalación y configuración de Cacti</strong> en un sistema Linux (Ubuntu 8.04) recién instalado.</p>
+<p>El cómo instalar el sistema operativo así como el funcionamiento del mismo no están en el alcance de este documento, asumiendo que el usuario tiene unos mínimos conocimientos en entornos Linux.</p>
+<p>Si la instalación se realiza en otra distribución que no sea Ubuntu, los cambios deben ser mínimos ya que la instalación de Nagios en sí, se realizará desde el código fuente para dar mayor amplitud a los sistemas en los que pueda aplicarse este documento.</p>
+<h3>Paso 1. Entramos en modo root (su).</h3>
+<pre class="java" name="code">sudo su -mp</pre>
+<h3>Paso 2. Actualización del sistema base.</h3>
+<pre class="java" name="code">apt-get update</pre>
+<h3>Paso 3. Instalamos Apache 2, PHP version 5 y MySQL.</h3>
+<pre class="java" name="code">apt-get install php5 php5-gd php5-mysql mysql-server</pre>
+<h3>Paso 4. Creamos fichero info.php para comprobar instalación.</h3>
+<pre class="java" name="code">cd /var/www
+echo "<!--?php phpinfo(); ?-->"  &gt; info.php</pre>
+<h3>Paso 5. Reiniciamos servicio apache.</h3>
+<pre class="java" name="code">/etc/init.d/apache2 restart</pre>
+<h3>Paso 6. Entramos por el navegador a la IP del servidor a la URL:</h3>
+<pre class="java" name="code">http://ip.servidor/info.php</pre>
+<h3>Paso 7. Instalamos las rrdtool y el snmp.</h3>
+<pre class="java" name="code">apt-get install  rrdtool snmp</pre>
+<h3>Paso 8. Instalación de las librerías necesarias para jpeg, png y gd2.</h3>
+<pre class="java" name="code">apt-get install libjpeg62 libjpeg62-dev libpng12-0 libpng12-dev libgd2-xpm-dev</pre>
+<h3>Paso 9. Instalación de la libreria GD</h3>
+<pre class="java" name="code">cd /tmp
+wget -c http://www.libgd.org/releases/gd-2.0.35.tar.gz
+tar -xzvf gd-2.0.35.tar.gz
+cd gd-2.0.35
+./configure
+make
+make install</pre>
+<h3>Paso 10. Instalamos modulo GD de PHP.</h3>
+<pre class="java" name="code">apt-get install php5-gd</pre>
+<h3>Paso 11. Reiniciamos Apache y comprobamos mediante la URL de info.php que esten las GD.</h3>
+<pre class="java" name="code">/etc/init.d/apache2 restart
+(navegador http://ip.servidor/info.php)</pre>
+<h3>Paso 12. Instalamos Cacti.</h3>
+<pre class="java" name="code">apt-get install cacti-cactid</pre>
+<p>En este paso se nos pedirá:</p>
+<pre class="java" name="code">- Which kind of web server should be used by cacti? -&gt; Apache2
+- Configure database for cacti with dbconfig-common? -&gt; Yes
+- Password of your database's administrative user. -&gt; Aquí debemos poner el password del root de MySQL
+- MySQL application password for cacti. -&gt; cacti (o cualquier otro password de nuestra elección)
+- Password confirmation. -&gt; cacti (o cualquier otro password de nuestra elección)</pre>
+<p>En este punto ya tenemos instalado el cacti, el cual podemos verlo en la URL:<br />
+http://ip.servidor/cacti/</p>
+<p>Esta URL nos mostrará la pantalla de instalación de Cacti, punto desde el cual seguiremos para completar la instalación.</p>
+<pre class="java" name="code">- Cacti Installation Guide -&gt; Next
+- Please select the type of installation -&gt; New Install</pre>
+<p>En la siguiente pantalla aparecerán las distintas opciones y aplicación que cacti usa y deben aparecer todas en verde con el letrero [FOUND]<br />
+Hacemos click en FINISH</p>
+<p>En la siguiente pantalla nos pedirá usuario y password:</p>
+<pre class="java" name="code">usuario: admin
+password: admin</pre>
+<p>Nos enviará a una pantalla para que, de manera forzosa, cambiemos el password del administrador. Ponemos:</p>
+<pre class="java" name="code">Please enter a new password for cacti:
+Password: cacti
+Confirm.: cacti</pre>
+<p>(o cualquier otro password de nuestra conveniencia)</p>
+<p>Con esto ya tenemos instalado el cacti y configurado para el primer device que es localhost, el cual podemos ver si hacemos click sobre el menu superior:</p>
+<pre class="java" name="code">Graphs -&gt; localhost</pre>
+<h3>Paso 13. Configurar el poller para spine.</h3>
+<p>En la pantalla principal del cacti, en el menú de la izquierda, abajo, hacemos click sobre el menu:</p>
+<pre class="java" name="code">Configuration -&gt; Settings</pre>
+<p>Y en la configuración, hacemos click sobre la pestaña que pone:<br />
+Poller<br />
+Y en la opción que pone:<br />
+Poller Type<br />
+The poller type to use. This setting will take effect at next polling interval.<br />
+Le asignamos el valor:<br />
+spine<br />
+Guardamos los cambios y salimos.</p>
+<h3>ANEXO 1. Añadir un host para monitorear.</h3>
+<p>Una vez instalado y configurado el cacti es momento de añadir más hosts o devices para monitorear.</p>
+<h4>Paso 1. Instalar el demonio snmpd en el host remoto.</h4>
+<pre class="java" name="code">apt-get install snmpd</pre>
+<h4>Paso 2. Configurar el acceso remoto del monitor al host remoto.</h4>
+<p>Para que el host donde está instalado el cacti sea capaz de acceder vía snmp al demonio del host remoto, tenemos que editar el fichero:</p>
+<pre class="java" name="code">nano -w /etc/default/snmpd</pre>
+<p>Y asegurarnos de que las siguientes opciones queden así:</p>
+<pre class="java" name="code">SNMPDRUN=yes
+SNMPDOPTS='-Lsd -Lf /dev/null -u snmp -I -smux -p /var/run/snmpd.pid'</pre>
+<p>El contenido del fichero completo quedaría:</p>
+<pre class="java" name="code"># This file controls the activity of snmpd and snmptrapd
+# MIB directories.  /usr/share/snmp/mibs is the default, but
+# including it here avoids some strange problems.
+export MIBDIRS=/usr/share/snmp/mibs
+# snmpd control (yes means start daemon).
+SNMPDRUN=yes
+# snmpd options (use syslog, close stdin/out/err).
+SNMPDOPTS='-Lsd -Lf /dev/null -u snmp -I -smux -p /var/run/snmpd.pid'
+# snmptrapd control (yes means start daemon).  As of net-snmp version
+# 5.0, master agentx support must be enabled in snmpd before snmptrapd
+# can be run.  See snmpd.conf(5) for how to do this.
+TRAPDRUN=no
+# snmptrapd options (use syslog).
+TRAPDOPTS='-Lsd -p /var/run/snmptrapd.pid'
+# create symlink on Debian legacy location to official RFC path
+SNMPDCOMPAT=yes</pre>
+<h4>Paso 3. Configurar la comunidad y el tipo de acceso.</h4>
+<p>En el host remoto editamos el fichero de configuración del snmpd:</p>
+<pre class="java" name="code">nano -w /etc/snmpd/snmpd.conf</pre>
+<p>Comentamos todas las lineas que comienzan por:<br />
+com2sec<br />
+Y añadimos la siguiente linea:</p>
+<pre class="java" name="code">com2sec  readonly  default         public</pre>
+<p>En la cual le estamos diciendo que el acceso sea de sólo lectura y que la comunidad se llama public</p>
+<h4>Paso 4. Reiniciamos snmpd en el host remoto.</h4>
+<pre class="java" name="code">/etc/init.d/snmpd restart</pre>
+<p>Una vez completados estos 4 pasos desde el host de monitoreo donde hemos instalado el cacto, podemos probar el acceso remoto con la siguiente linea:</p>
+<pre class="java" name="code">snmpwalk -v 2c -c public 94.23.85.84 .</pre>
+<p>O bien con la siguiente linea, que dará un resultado mas corto:</p>
+<pre class="java" name="code">snmpwalk -v 2c -c public 94.23.85.84 system</pre>
+<p>El cual debe ser algo parecido a esto:</p>
+<pre class="java" name="code">SNMPv2-MIB::sysDescr.0 = STRING: Linux virt129 2.6.32-3-pve #1 SMP Fri Sep 3 12:48:27 CEST 2010 i686
+SNMPv2-MIB::sysObjectID.0 = OID: NET-SNMP-MIB::netSnmpAgentOIDs.10
+DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (1446404) 4 begin_of_the_skype_highlighting              (1446404) 4      end_of_the_skype_highlighting:01:04.04
+SNMPv2-MIB::sysContact.0 = STRING: Root  (configure /etc/snmp/snmpd.local.conf)
+SNMPv2-MIB::sysName.0 = STRING: virt129
+SNMPv2-MIB::sysLocation.0 = STRING: Unknown (configure /etc/snmp/snmpd.local.conf)
+SNMPv2-MIB::sysORLastChange.0 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORID.1 = OID: SNMP-FRAMEWORK-MIB::snmpFrameworkMIBCompliance
+SNMPv2-MIB::sysORID.2 = OID: SNMP-MPD-MIB::snmpMPDCompliance
+SNMPv2-MIB::sysORID.3 = OID: SNMP-USER-BASED-SM-MIB::usmMIBCompliance
+SNMPv2-MIB::sysORID.4 = OID: SNMPv2-MIB::snmpMIB
+SNMPv2-MIB::sysORID.5 = OID: TCP-MIB::tcpMIB
+SNMPv2-MIB::sysORID.6 = OID: IP-MIB::ip
+SNMPv2-MIB::sysORID.7 = OID: UDP-MIB::udpMIB
+SNMPv2-MIB::sysORID.8 = OID: SNMP-VIEW-BASED-ACM-MIB::vacmBasicGroup
+SNMPv2-MIB::sysORDescr.1 = STRING: The SNMP Management Architecture MIB.
+SNMPv2-MIB::sysORDescr.2 = STRING: The MIB for Message Processing and Dispatching.
+SNMPv2-MIB::sysORDescr.3 = STRING: The management information definitions for the SNMP User-based Security Model.
+SNMPv2-MIB::sysORDescr.4 = STRING: The MIB module for SNMPv2 entities
+SNMPv2-MIB::sysORDescr.5 = STRING: The MIB module for managing TCP implementations
+SNMPv2-MIB::sysORDescr.6 = STRING: The MIB module for managing IP and ICMP implementations
+SNMPv2-MIB::sysORDescr.7 = STRING: The MIB module for managing UDP implementations
+SNMPv2-MIB::sysORDescr.8 = STRING: View-based Access Control Model for SNMP.
+SNMPv2-MIB::sysORUpTime.1 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORUpTime.2 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORUpTime.3 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORUpTime.4 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORUpTime.5 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORUpTime.6 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORUpTime.7 = Timeticks: (0) 0:00:00.00
+SNMPv2-MIB::sysORUpTime.8 = Timeticks: (0) 0:00:00.00</pre>
+<h4>Paso 5. Añadir el device (host remoto) al cacti.</h4>
+<p>Desde la pantalla principal hacemos click en el menu:</p>
+<pre class="java" name="code">Management -&gt; Devices</pre>
+<p>Y sólo nos aparecera localhost.<br />
+Hacemos click sobre el enlace superior derecho:<br />
+Add<br />
+Y nos aparecerá una pantalla donde debemos rellenar todos los datos del host que queremos añadir.<br />
+De todos los valores que salen debemos completar:<br />
+Description -&gt; Una descripción corta o nombre del host.<br />
+Hostname -&gt; IP del host remoto.<br />
+Host Template  -&gt; ucd/net SNMP host.<br />
+Downed Device Detection -&gt; SNMP (en este punto podemos probar como viene por defecto).<br />
+SNMP Version -&gt; Versión 2.<br />
+SNMP Community -&gt; Public.</p>
+<p>Todos estos valores tal y como hemos realizado la instalación son más que suficientes, pero, si hemos variado por ejemplo la comunidad en la instalación del demonio snmpd en el host remoto, también tendríamos que cambiarlo aquí obviamente.<br />
+Le damos al botón:<br />
+Create<br />
+Nos aparecerá de nuevo la misma pantalla con lo que haremos click en el botón:<br />
+Save<br />
+Y volveremos al listado de devices.</p>
+<h4>Paso 6. Crear gráficas.</h4>
+<p>Desde el listado de devices hacemos click en el nuevo host creado y seguimos el enlace que pone:<br />
+Create Graphs for this Host<br />
+En Graph Templates, seleccionamos todas las opciones y lo mismo hacemos en Data Query [SNMP - Interface Statistics], así como cualquier otro checkbox que veamos y nos resulte de interés monitorear.<br />
+Una vez terminado hacemos click sobre el botón:<br />
+Create<br />
+Y volveremos nuevamente al listado de devices.</p>
+<h4>Paso 7. Añadir device al árbol de gráficas.</h4>
+<p>Sobre el listado de devices hacemos click sobre el checkbox (a la derecha) del host remoto recién creado y, en el desplegable de abajo, seleccionamos la opción:<br />
+Place on a tree (default tree)<br />
+Con eso ya lo tendríamos añadido, pudiéndolo comprobar en la pestaña superior izquierda:<br />
+graphs<br />
+Pero no veremos aun nada hasta pasados unos minutos (5-15) y haya ejecutado varias veces el poller para actualizar los datos.</p>
+<p>Artículo original: <a title="El muro del saber" href="http://www.elmurodelsaber.com/" target="_blank">El muro del saber</a>.<br />
+Como siempre, para más información y/o detalle: documentación oficial - googlear.</p>

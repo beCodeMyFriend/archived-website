@@ -1,0 +1,49 @@
+---
+layout: post
+status: publish
+published: true
+title: PCI DSS para developers
+author:
+  display_name: Miguel Angel
+  login: Miguel Angel
+  email: mike@becodemyfriend.com
+  url: http://www.becodemyfriend.com
+author_login: Miguel Angel
+author_email: mike@becodemyfriend.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 4185
+wordpress_url: http://www.becodemyfriend.com/?p=4185
+date: '2013-08-13 17:00:29 +0000'
+date_gmt: '2013-08-13 15:00:29 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Sistemas
+---
+<p>El proyecto en el que estoy trabajando actualmente no se estaría llevando a cabo si no fuera por un factor: <a href="https://www.pcisecuritystandards.org/security_standards/getting_started.php" target="_blank">PCI DSS</a> (PCI). PCI es un estándar de seguridad cuyo objetivo es mejorar la protección sobre los datos de pago (es decir, tarjetas de débito o crédito) que algunas entidades financieras están exigiendo aplicar a los servicios que manejan estos datos.</p>
+<p>Para poner un ejemplo, a un servicio que almacene el número de tarjeta en una base de datos (aunque no se use para hacer cargos), ya se le puede exigir que adopte PCI.</p>
+<p>En este post voy a comentar algunos pequeños <em>tips</em> para desarrolladores que no se hayan enfrentado todavía a un desarrollo bajo PCI. Para empezar, un par de consideraciones generales:</p>
+<p>PCI DSS es una certificación. Sí, un señor con corbata va a revisar el sistema y le pone un sello. Este señor tiene autoridad para interpretar los requisitos de PCI y decir si el servicio los cumple o no.</p>
+<p>La mayor parte de los requisitos PCI se aplican a la administración de sistemas: configuración de subredes, <em>firewalls</em>, antivirus, WAF, FIP, etc. pero hay algunos <strong>conceptos que el desarrollador de a pie debe tener en cuenta</strong>:</p>
+<ul>
+<li><em><strong>Logs</strong></em>: El sistema debe dejar registro de todo lo que tenga que ver con el acceso a un dato de pago: fecha y hora, usuario, acción, proceso.</li>
+<li><strong>Seguridad del código</strong>: Los desarrolladores tienen que pasar un test para demostrar que conocen técnicas para escribir código seguro. Adicionalmente hay que adquirir una licencia de una herramienta de análisis estático que registre el código en busca de vulnerabilidades de seguridad.</li>
+<li><strong>Nivel de acceso</strong>: Los servidores de producción deben ser accesibles por el mínimo número de personas, lo que deja a los desarrolladores sin mucho margen.</li>
+<li><strong>Encriptación</strong>: Es requerido encriptar los datos de pago (número de tarjeta, nombre, fecha de expiración, <em>service code</em>). Esto ya es una restricción que hay que manejar a nivel de código adecuadamente ya que en nuestro servicio los mostraremos enmascarados o completos en función de niveles de permiso.</li>
+</ul>
+<p>Y aquí es donde viene <strong>una de las partes más divertidas</strong>, la…<strong></strong></p>
+<p><strong>Gestión de claves</strong>: Como he comentado, algunos campos de la base de datos tienen que estar encriptados. Para encriptar los datos de pago necesitamos unas claves, que no pueden estar en el mismo servidor de base de datos. Hasta aquí no hay problema porque ya es costumbre habilitar dos máquinas una para base de datos y otra para los servicios. Además estas claves tienen que estar encriptadas, no vaya a ser que alguien se las lleve por accidente, con lo que generamos una nueva clave llamada “maestra”, con la que encriptamos estas claves.</p>
+<p>Esta llave “maestra” lógicamente no puede almacenarse ni con la base de datos ni con las otras claves. ¿Qué hacer con ella? Pues una solución es escribirla en un papel y dársela al <a href="http://en.wikipedia.org/wiki/Chief_security_officer" target="_blank">CSO</a> de la empresa.</p>
+<p>Estas condiciones hacen que desplegar un servicio se convierta en un pequeño puzzle de <em>passwords</em>, permisos, roles y personas. Hagamos un resumen de la situación que se encuentran los desarrolladores a la hora de desplegar:</p>
+<ul>
+<li>No tienen acceso a ninguna de las claves de la aplicación, con lo que necesita coordinarse con el custodio de la clave maestra para desplegar.</li>
+</ul>
+<ul>
+<li>No tienen acceso al entorno de producción de la aplicación, para diagnosticar errores hay que inventar un sistema para extraer los <em>logs</em>.</li>
+</ul>
+<ul>
+<li>No tienen acceso a la base de datos.</li>
+</ul>
+<p>Personalmente prefiero pensar en estas <strong>restricciones como retos para hacer mejorar el flujo de desarrollo y despliegue</strong> más que como un estorbo. Aplicando las clásicas técnicas manuales el despliegue se puede convertir en una pesadilla pero <strong>con un poco de sentido común y conocimiento de despliegue automatizado y desarrollo ágil se puede conseguir una instalación bastante fluida.</strong></p>
+<p>Para los interesados o involucrados en el tema, la documentación más completa se puede encontrar en el <a href="https://www.pcisecuritystandards.org/security_standards/documents.php" target="_blank">sitio oficial de PCI DSS</a>. El proceso de certificación requiere un gran número de documentos, que son muy útiles para procesos futuros pero que también son muy confidenciales .</p>

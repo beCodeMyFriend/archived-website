@@ -1,0 +1,89 @@
+---
+layout: post
+status: publish
+published: true
+title: Instalación y configuración de servidor de integración contínua con soporte
+  PHP
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2459
+wordpress_url: http://www.becodemyfriend.com/?p=2459
+date: '2011-11-29 09:40:51 +0000'
+date_gmt: '2011-11-29 08:40:51 +0000'
+categories:
+- Programación
+tags:
+- Java
+- PHP
+- Programación
+- Sistemas
+- Linux
+- integracion continua
+- git
+---
+<p>Este manual está basado sobre una VPS ProxMox con Ubuntu 11.04 Server recién instalada.</p>
+<h3>Consideración 1.</h3>
+<p>Si en la instalación de Jenkins te da un problema de conectividad:</p>
+<p>Could not resolve 'mirrors.jenkins-ci.org'</p>
+<p>inyecta en tu DNS local la IP con la orden:</p>
+<pre class="php" name="code">echo "63.246.20.93 mirrors.jenkins-ci.org" &gt;&gt; /etc/hosts</pre>
+<h3>Consideración 2.</h3>
+<p>Si al instalar los plugins te da un error de conectividad:</p>
+<p>Caused by: java.net.UnknownHostException: updates.jenkins-ci.org</p>
+<p>inyecta en tu DNS local la IP con la orden:</p>
+<pre class="php" name="code">echo "63.246.20.93 updates.jenkins-ci.org" &gt;&gt; /etc/hosts</pre>
+<h3>Consideración 3.</h3>
+<p>Si al instalar los plugins te da un error de memoria de Java:</p>
+<p>Error occurred during initialization of VM.</p>
+<p>Could not reserve enough space for object heap.</p>
+<p>Could not create the Java virtual machine.</p>
+<p>Debes incrementar la memoria de la VPS desde ProxMox (RAM 1024 SWAP 512).</p>
+<h3>1. Instalar los repositorios.</h3>
+<pre class="php" name="code">wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | sudo apt-key add -
+sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ &gt; /etc/apt/sources.list.d/jenkins.list'</pre>
+<h3>2. Actualizar paquetes.</h3>
+<pre class="php" name="code">apt-get update</pre>
+<h3>3. Instalar Jenkins.</h3>
+<pre class="php" name="code">apt-get install jenkins</pre>
+<h3>4. Instalamos PHP.</h3>
+<pre class="php" name="code">apt-get install php5 php-pear</pre>
+<h3>5. Comprobamos instalación PHP.</h3>
+<p>Reiniciamos Apache:</p>
+<pre class="php" name="code">/etc/init.d/apache2 restart</pre>
+<p>Desde la consola creamos el fichero:</p>
+<pre class="php" name="code">/var/www/info.php</pre>
+<p>con el contenido</p>
+<pre class="xml" name="code">&lt;?php phpinfo(); ?&gt;</pre>
+<pre class="xml" name="code">echo "&lt;?php phpinfo(); ?&gt;" &gt; /var/www/info.php</pre>
+<p>y abrimos dicha dirección desde el navegador:</p>
+<pre class="php" name="code">http://IP.JENKINS/info.php</pre>
+<p>Debemos ver la salida de info de PHP.</p>
+<h3>6. Instalacion de los plugins.</h3>
+<pre class="php" name="code">cd /tmp/
+wget http://localhost:8080/jnlpJars/jenkins-cli.jar
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin checkstyle
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin cloverphp
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin dry
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin htmlpublisher
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin jdepend
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin plot
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin pmd
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin violations
+java -jar jenkins-cli.jar -s http://localhost:8080 install-plugin xunit
+java -jar jenkins-cli.jar -s http://localhost:8080 safe-restart</pre>
+<h3>7. Instalación de dependencias de PHP.</h3>
+<pre class="php" name="code">pear config-set auto_discover 1
+pear install pear.phpqatools.org/phpqatools PHPDocumentor</pre>
+<h3>8. Crear autorización para usuario Jenkins en el servidor Git.</h3>
+<pre class="php" name="code">passwd jenkins
+ssh-keygen -t rsa
+ssh-copy-id -i ~/.ssh/id_rsa.pub gituser@IP.SERVIDOR.GIT</pre>
+<h3>Entradas similares:</h3>
+<p><a title="Migración de un repositorio Subversion a Git" href="http://www.becodemyfriend.com/2011/11/migracion-de-un-repositio-subversion-a-git/" target="_blank">Migración de un repositorio Subversion a Git</a></p>
+<p><a title="Firewall genérico para VPS Linux" href="http://www.becodemyfriend.com/2011/10/firewall-generico-para-vps-linux/" target="_blank">Firewall genérico para VPS Linux</a></p>
+<p><a title="Instalación y configuración de un servidor FTP con Ubuntu 10.04 (FIXTURE SERVER)" href="http://www.becodemyfriend.com/2011/11/instalacion-y-configuracion-de-un-servidor-ftp-con-ubuntu-10-04-fixture-server/" target="_blank">Instalación y configuración de un servidor FTP con Ubuntu 10.04 (FIXTURE SERVER)</a></p>

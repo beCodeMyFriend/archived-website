@@ -1,0 +1,68 @@
+---
+layout: post
+status: publish
+published: true
+title: Code Retreat 02 de Octubre, Madrid
+author:
+  display_name: konz
+  login: konz
+  email: acasadotorres@gmail.com
+  url: http://www.codebox.es
+author_login: konz
+author_email: acasadotorres@gmail.com
+author_url: http://www.codebox.es
+wordpress_id: 111
+wordpress_url: http://www.becodemyfriend.com/?p=111
+date: '2010-10-06 13:42:43 +0000'
+date_gmt: '2010-10-06 12:42:43 +0000'
+categories:
+- Programación
+tags:
+- Agilismo
+- code retreat
+- Programación
+- evento
+- TDD
+- Artesanía del software
+---
+<p>Con un desayuno en el Hotel... comienza el Code Retreat. <a href="http://www.agilismo.es">agilismo.es</a> con el patrocinio de <a href="http://www.autentia.com/">Autentia</a> y <a href="http://edendevelopment.co.uk/">Eden Development</a>,organiza el evento, con <a href="http://twitter.com/ecomba">Enrique Comba</a> al frente.</p>
+<p><img src="http://farm5.static.flickr.com/4132/5048309338_abc40e2ab3_b.jpg" alt="almuerzo en el hotel" width="614" height="409" /></p>
+<p>Durante el evento contamos de alguna manera con la presencia de <a href="http://twitter.com/coreyhaines">Corey Haines</a> que, mediante una videoconferencia, nos saludó y pudimos intercambiar algunas palabras con el impulsor de los code retretas.</p>
+<p>El reto propuesto está basado en el conocido <a href="http://es.wikipedia.org/wiki/Juego_de_la_vida">"Juego de la Vida"</a> , de John Horton Conway.</p>
+<p>En los Code Retreats, se trabaja en iteraciones de 45 minutos, borrando todo el código anterior antes de cada una y cambiando de pareja cada vez.</p>
+<p>Las 2 primeras iteraciones suponen una aproximación al problema. En los intervalos entre una iteración y la siguiente, Enrique empieza a hablar del "naming"  y el resto de los asistentes participamos dando nuestra opinión hasta llegar a conclusiones como la importancia que tiene encontrar el nombre adecuado de cada una de las variables. Es decir, si somos capaces de escribir de manera entendible nuestro código, será mucho más fácil entender el problema, tanto para nosotros como para aquellos programadores que lo lean.</p>
+<p>Un ejemplo de código sin un buen naming:<br />
+<code><br />
+public function test1()<br />
+{<br />
+$myVar = 0;<br />
+$object = new Cell();<br />
+$result = $object-&gt;getStatus($myVar);<br />
+$this-&gt;assertFalse($result);<br />
+}</code><br />
+no hay forma de saber que hace este test, sin embargo algo así:<br />
+<code><br />
+public function testCheckIfCellDiesWithZeroNeighbours()<br />
+{<br />
+$neighbours = 0;<br />
+$cell = new Cell();<br />
+$cellIsAlive = $cell-&gt;checkLife($neighbours);<br />
+$this-&gt;assertFalse($cellIsAlive);<br />
+}</code><br />
+Como veis, el segundo test es el mismo que el primero, sin embargo queda mucho mas claro que es lo que estoy testeando.</p>
+<p>La tercera iteración supuso un antes y un después en la manera de entender el TDD. Para empezar, la duración se redujo a 20 minutos. Tiempo en el cual Enrique nos plantea no crear clases ni métodos, sino escribir el código necesario para pasar un test dentro del propio test.</p>
+<p>Transcurridos esos 20 minutos se realiza un braimstorming en el cual hay diferentes opiniones entre los participantes, que van  desde el desconcierto hasta emoción ante el nuevo reto. Antes de pasar a la siguiente iteración Enrique formula dos "code restrains".</p>
+<p>- Escribir nuestros tests, incluido el código para resolverlo no debe superar las cuatro líneas.</p>
+<p>- No se pueden utilizar "if"s.</p>
+<p>Nuestros test quedaron algo así:</p>
+<p><code>public function testCellWithLessThan2NeighboursDies()<br />
+{<br />
+$neighbours = 0;<br />
+$minimumNeightboursForKeepAlive = 2;<br />
+$cellIsAlive = $neighbours &gt;= $minimumNeighboursForKeepAlive;<br />
+$this-&gt;assertFalse($cellIsAlive);<br />
+}</code></p>
+<p>Tras esta iteración que yo llamaría "Extreme TDD" concluimos que, aunque la mayoría de veces creemos estar haciendo buen TDD, en realidad ya estamos cerrados a una solución puesto que testeamos los objetos que creemos que vamos a necesitar, como en las iteraciones anteriores, que comenzamos creando objetos como "tablero", "célula" o "universo". En cambio, de esta manera nos mantenemos más en el espacio del problema, lo que, después de refactorizar, nos lleva a soluciones más simples y eficaces.</p>
+<p>A lo largo del día pude "pairear" con expertos en otros lenguajes de programación como por ejemplo Ruby; agradezco mucho a Luismi que me enseñase. No faltó el humor a la hora de plantear las soluciones desde un punto de vista casi "divino" cuando alguien creo el objeto "Dios" u otros que preferian utilizar a "La Madre Naturaleza" para crear vida!.<br />
+Fue un día muy entretenido para mi, una experiencia que espero poder repetir.</p>
+<p><img title="beode en el Code Retreat de Madrid II" src="http://farm5.static.flickr.com/4103/5047625213_1a48ec134e_b.jpg" alt="programando" width="614" height="409" /></p>

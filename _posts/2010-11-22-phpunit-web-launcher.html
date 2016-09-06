@@ -1,0 +1,65 @@
+---
+layout: post
+status: publish
+published: true
+title: PHPUnit Web Launcher (Interface)
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+wordpress_id: 299
+wordpress_url: http://www.becodemyfriend.com/?p=299
+date: '2010-11-22 21:51:38 +0000'
+date_gmt: '2010-11-22 20:51:38 +0000'
+categories:
+- Programación
+tags:
+- PHP
+- PHPUnit
+- Programación
+- TDD
+---
+<p>Recientemente he entrado en una vorágine de testeo y, entre otras cosas, he visto la necesidad de crear un test runner para PHPUnit lanzable desde la web para mi empresa. He decidido sacarlo como un pequeño proyecto open source. El resultado es este bonito interfaz:</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-303" style="border: 1px solid #ebebeb;" title="Web test launcher for PHPUnit" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-22-at-11.15.34-AM1.png" alt="" width="689" height="361" /></p>
+<p>En el menú de la derecha podemos escoger qué suites deseamos lanzar. El resultado, a la izquierda, es una lista foldeable con javascript, lo que hace la navegación bastante fácil. Cuando un test falla, la lista se despliega automáticamente mostrando los tests que no pasan en rojo:</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-312" title="PHPUnit Web Launcher" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-22-at-3.38.19-PM.png" alt="" width="578" height="395" /></p>
+<p>La idea es mantener cada test case junto con el código que testea, un script recopila todos los archivos que contienen un test case. Todo esto ha sido probado con Apache2 + PHP 5.3 + PHPUnit 3.5 en un entorno Unix (OS X).</p>
+<p>Para poder usar el test runner, necesitarás tener PHPUnit 3.5 instalado:</p>
+<p>http://www.phpunit.de/manual/3.5/en/installation.html</p>
+<h2>Guía rápida</h2>
+<p>1. Configura la URL absoluta al directorio del TestRunner en el archivo config.php.</p>
+<p>2. Crea un archivo con la batería de tests, es recomendable meterlo en un nuevo directorio llamándolo index.php. Puedes copiar el archivo TestSamples/index.php como punto de partida.</p>
+<p>3. Crea un array llamado "$testSuite" donde iremos poniendo las rutas a los archivos que queremos testear. Es recomendable utilizar rutas absolutas. Por ejemplo:</p>
+<pre name="code" class='php'>
+$testSuite = array();
+$testSuite[] = dirname(__FILE__)."/../../lib/";
+</pre>
+<p>Donde en "lib" encontraremos nuestro código junto con sus archivos de test.</p>
+<p>4. El convenio de nombrado para los archivos de test es "TestCaseClassName.php" donde el nombre del archivo es el mismo nombre que la clase que contiene, por ejemplo:</p>
+<p>TestCaseMyClass.php contiene la clase TestCaseMyClass, que normalmente extenderá a PHPUnit_Framework_TestCase. Puedes encontrar un ejemplo en TestSamples/TestExample/TestCaseExample.php.</p>
+<p>5. Configura en index.php la inclusión de testLauncher.php</p>
+<pre name="code" class='php'>
+include dirname(__FILE__).DIRECTORY_SEPARATOR."../TestRunner/testLauncher.php";
+</pre>
+<p>6. Apunta tu navegador a la URL del archivo index.php, el resto es un paseo =)</p>
+<p>Hay un ejemplo completo de todo esto en TestRunner/TestSamples/</p>
+<h2>OPCIONAL: CODE COVERAGE</h2>
+<p>nota: para obtener información de cobertura de código, necesitarás tener instalados PHP_CodeCoverage y la extensión XDebug.</p>
+<p>Para activar el informe de cobertura de código, simplemente pasa el flag "coverage" como parámetro GET. Por ejemplo:</p>
+<p>http://localhost/myproject/tests/?coverage</p>
+<p>Opcionalmente puedes configurar una lista de archivos y directorios que serán ignorados por el informe de code coverage del mismo modo que se configuran archivos para ser testeados. Por ejemplo:</p>
+<pre name="code" class='php'>
+$codeCoverageIgnoreDirectoryList = array();
+$codeCoverageIgnoreDirectoryList[] = dirname(__FILE__)."/../../ignoreDir/";
+
+$codeCoverageIgnoreFileList = array();
+$codeCoverageIgnoreFileList[] = dirname(__FILE__)."/../IgnoreFile.php";
+</pre>
+<p>Este es el aspecto del code coverage report:</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-313" title="PHPUnit Web Launcher" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-22-at-3.36.22-PM.png" alt="" width="578" height="382" /></p>
+<p>Es una primera iteración para la que ya tengo una buena lista de cambios. Por ejemplo, el code coverage report no me convence demasiado, el cálculo de coverage total está basado en la media de cada clase en lugar de en el cómputo total de lineas cubiertas. Prometo ir mejorándolo poco a poco.</p>
+<p>Puedes descargar el código de PHPUnit Web Launcher en:</p>
+<p><a href="http://code.google.com/p/phpunitweblauncher/downloads/detail?name=phpunitweblauncher.zip&amp;can=2&amp;q=" target="_blank">http://code.google.com/p/phpunitweblauncher/downloads/detail?name=phpunitweblauncher.zip&amp;can=2&amp;q=</a></p>

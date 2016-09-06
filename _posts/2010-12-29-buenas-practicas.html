@@ -1,0 +1,41 @@
+---
+layout: post
+status: publish
+published: true
+title: Buenas prácticas o hábitos de programación
+author:
+  display_name: FranPereta
+  login: FranPereta
+  email: frabosce@gmail.com
+  url: http://www.becodemyfriend.com
+author_login: FranPereta
+author_email: frabosce@gmail.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 581
+wordpress_url: http://www.becodemyfriend.com/?p=581
+date: '2010-12-29 21:08:30 +0000'
+date_gmt: '2010-12-29 20:08:30 +0000'
+categories:
+- Programación
+tags:
+- Agilismo
+- Programación
+---
+<div>
+<p class="MsoNormal">Yo también pude estar unos días con la gente de beCode y, ya que Emma ha descrito la experiencia en el post <a href="http://www.becodemyfriend.com/2010/12/becode-experience/" target="_blank">BeCode Experience</a>,a mi me gustaría comentar un tema de los tantos que surgieron durante esos días.</p>
+<p class="MsoNormal">¿Qué pasa cuando una buena práctica de programación se convierte en dogma?</p>
+<p class="MsoNormal">Muchos programadores, entre los que me incluyo, intentan utilizar buenas prácticas o hábitos de programación que son conocidos, pero la mayoría de las veces lo hacemos sin pensar porqué se utilizan, para qué se utilizan o qué sentido tienen y simplemente empezamos a utilizarlos siempre en nuestro código como si fuéramos “borregos”. Utilizamos estas prácticas una y otra vez en todos los proyectos y acaba convirtiéndose en un dogma.</p>
+<p class="MsoNormal">Volviendo a cuestionar ¿Qué pasa cuando una buena práctica de programación se convierte en dogma? Pues que algunas veces acaba convirtiéndose en una lacra, proporcionando más desventajas que ventajas.</p>
+<p class="MsoNormal">En nuestro caso estuvimos hablando sobre el uso de Interfaces, ya que se utilizan mucho. Además hay que tener en cuenta que son necesarias para el uso de los mágicos frameworks de inyección de dependencias y esto ha provocado que aún se estén utilizando más.</p>
+<p class="MsoNormal">Por todos es sabido el papel importante de las interfaces en la POO y de otras muchas ventajas que aporta su uso, pero no por ello se deben tener interfaces como churros para todas las clases.</p>
+<p class="MsoNormal">Raro es no ver un proyecto lleno de interfaces, con nombres de archivo con la “I” delante, una para cada clase, si tenemos la clase KkDeLaVaca tenemos nuestra interfaz IkkDeLaVaca. Incluso si nuestro proyecto no utiliza el mágico framework de inyección de dependencias, nosotros tenemos nuestras bonitas interfaces con su “I” delante, olvidándonos por completo de qué sentido tienen y porqué se utilizan.</p>
+<p class="MsoNormal">Las desventajas que puede haber en este ejemplo son:</p>
+<ul>
+<li>El mal uso de la “I” delante del nombre. Ya que, si una interfaz representa un comportamiento o conjunto de características que adquiere la clase que la implementa, el poner la “I” junto al nombre de la clase destruye la semántica que representaría un buen nombre de Interfaz. Además de confundir, dando a entender que la interfaz es implementada por sólo una clase.</li>
+</ul>
+<ul>
+<li>Sincronización entre interfaz y clase. Muchas veces añades métodos que luego no puedes utilizar ya que no están definidos en la interfaz, teniendo que volver a la interfaz a definir esos métodos y obligándote a tener una sincronización entre interfaz y clase cuando muchas veces esa interfaz no es ni necesaria.</li>
+</ul>
+<p class="MsoNormal">Para acabar, me gustaría comentar que con este post no se intenta<span> </span>decir que utilizar buenas prácticas sea malo, todo lo contrario, hay que concienciarse y saber lo que se está haciendo para así poder elegir correctamente el utilizar algunas técnicas, ya que no siempre pueden venir bien.</p>
+<p class="MsoNormal">Me ha quedado un post claramente influenciado por Xavi y bastante radical… espero no herir sentimientos ;)</p>
+</div>

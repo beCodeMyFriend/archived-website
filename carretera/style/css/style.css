@@ -1,0 +1,477 @@
+/*
+Theme Name: TYPE ANIME - Version:  1
+Description:  Designed by <a href="http://themeforest.net/user/josweb">josweb</a>.
+Author:  <a href="http://www.spiralpixel.com">Jo</a>
+01. General Styling
+	i) typography
+	ii) clears and divider
+02. INTRODUCTION SECTION
+	i) big type
+	ii) logo
+	iii) red italics
+03. COUNTDOWN
+04. WHAT WE DO
+	i) fly in title
+	ii) intro text holder
+	iii) two column text holder
+	iv) icon
+05. SUBSCRIBE
+06. STAY IN TOUCH
+	i) twitter
+	ii) social icons
+	iii) join us text
+	iv) back to top
+*/
+
+/* RESET */
+html,body,div,span,applet,object,iframe,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-size: 100%;
+	vertical-align: baseline;
+	background: transparent; }
+	
+	body {
+	background:url("../../style/images/bg/bg1.jpg") repeat;
+	font-family:"DroidSansRegular",sans-serif;
+	font-weight:bold;
+	font-size:15px;
+	line-height:24px;
+	text-align:center;
+	text-shadow:0 2px 1px #fff;
+	color:#555;
+}
+
+p { margin:0px auto 15px auto; }
+a,a:visited { color:#D92B00; font-weight:bold; font-style: italic; }
+a:hover { color:#333;}
+
+#email {
+	font-size: 28px;
+	color:#D92B00;
+}
+
+/***************************************************
+	01. GENERAL
+***************************************************/
+
+/*--i.-- typography --*/
+
+ h1 {
+	font-size:120px;
+	font-weight:normal;
+	margin:0;
+	font-family:"Ubuntu",sans-serif;
+	text-transform:uppercase;
+	color:#444;
+	text-shadow:0 2px 1px #fff;
+	line-height:.8;
+}
+h2 {
+	font-weight:normal;
+	margin:0;
+	color:#444;
+	padding:0px 0px 0px 0px;
+	text-shadow:0 2px 1px #fff;
+	font:100px 'ChunkFiveRegular',Arial,sans-serif;
+	text-transform:uppercase;
+}
+h3 {
+	font-weight:normal;
+	margin:0;
+	color:#444;
+	padding:0px 0px 15px 0px;
+	text-shadow:0 2px 1px #fff;
+	font:30px 'ChunkFiveRegular',Arial,sans-serif;
+	text-transform:uppercase;
+}
+h4 {
+	font-weight:normal;
+	margin:0;
+	color:#444;
+	padding:10px 0px 20px 0px;
+	text-shadow:0 2px 1px #fff;
+	font:20px 'ChunkFiveRegular',Arial,sans-serif;
+	text-transform:uppercase;
+}
+h5 {
+	font-weight:normal;
+	margin:0;
+	color:#444;
+	padding:10px 0px 20px 0px;
+	text-shadow:0 2px 1px #fff;
+	font:15px 'ChunkFiveRegular',Arial,sans-serif;
+	text-transform:uppercase;
+}
+h6 {
+	font-weight:normal;
+	margin:0;
+	color:#444;
+	padding:10px 0px 20px 0px;
+	text-shadow:0 2px 1px #fff;
+	font:13px 'ChunkFiveRegular',Arial,sans-serif;
+	text-transform: uppercase;
+}
+
+/*--ii.--clears and divider--*/
+
+.clear { clear:both; }
+.clear1 { margin-top:80px; clear:both; }
+.clear2 { margin-top:130px; clear:both; }
+.clear3 { margin-top:140px; clear:both; }
+.divider { font-size:14px; padding-top:10px;}
+
+/***************************************************
+	02. INTRODUCTION SECTION	
+***************************************************/
+
+/*--i.-- big type --*/
+
+#title {
+	font-family:'ChunkFiveRegular', Arial, sans-serif;
+	text-transform:uppercase;
+	overflow:hidden;
+	font-size:120px;
+	margin:0 auto -630px;
+	width:100%;
+	height:1000px;
+	letter-spacing:0.00em;
+	position:relative;
+	padding-top:20px;
+	z-index:99;
+	line-height:1.4;
+}
+.title-line {
+	position:relative;
+	display:block;
+	margin:auto;
+	width:300%;
+	left:-100%;
+}
+#title-line2 {
+	top:-60px;
+}
+#title-line3 {
+	top:-120px;
+}
+.title-line span {
+	display:inline-block;
+	line-height:1.1;
+	position:relative;
+}
+#title-info {
+	position:relative;
+	z-index:99998;
+}
+
+/*--ii.-- logo --*/
+
+#logo img {
+	margin:-10px 0 0px 0;
+	-moz-transition:all 0.8s ease-in-out;
+	-webkit-transition:all 0.8s ease-in-out;
+	-o-transition:all 0.8s ease-in-out;
+	-ms-transition:all 0.8s ease-in-out;
+	transition:all 0.8s ease-in-out;
+}
+#logo img:hover {
+	cursor:none;
+	-moz-transform:rotate(360deg);
+	-webkit-transform:rotate(360deg);
+	-o-transform:rotate(360deg);
+	-ms-transform:rotate(360deg);
+	transform:rotate(360deg);
+}
+/*--iii.-- red italics --*/
+
+.red-italic {
+	font-size:18px;
+	margin:10px auto;
+	text-align:center;
+	font-style:italic;
+	color:#D92B00;
+}
+.red {
+	color: #D92B00;
+}
+/***************************************************
+	03. COUNTDOWN	
+***************************************************/
+
+img.clock {
+	margin-bottom:20px;
+}
+#countdown { overflow:hidden; }
+
+#launch_date {
+	width:832px;
+	height:190px;
+	text-align:center;
+	margin:40px auto 0px auto;
+	padding-left:10px;
+}
+.counter {
+	margin:0 auto;
+	text-align:center;
+	position:relative;
+}
+.countdown ul {
+}
+.countdown li {
+	padding:25px 0px 0px 0;
+	margin:0px 10px 0px 0px;
+	display:inline;
+	text-align:center;
+	float:left;
+	width:190px;
+	height:125px;
+	 border: 4px solid white; 
+    -webkit-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    -moz-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+			0 0 16px rgba(0,0,0,0.1); 
+    box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+   
+    background: rgba(255,255,255,0.5);
+}
+.number {
+	text-shadow:0 1px 1px #fff;
+	font-size:100px;
+	color:#D92B00;
+	letter-spacing:-0.03em;
+	font-family:"DroidSansRegular",sans-serif;
+	line-height:90px;
+}
+.time {
+	text-shadow:0 1px 1px #fff;
+	font-size:15px;
+	text-transform:uppercase;
+	color:#666;
+	font-family: "DroidSansRegular", sans-serif;
+}
+
+/***************************************************
+	04. WHAT WE DO	
+***************************************************/
+
+/*--i.-- fly in title --*/
+
+#fly-it { position:relative; }
+
+/*--ii.-- intro text holder --*/ 
+
+.holder {
+	text-align:center;
+	width:960px;
+	margin:10px auto 120px auto;
+}
+
+/*--iii.-- two column text holder --*/ 
+
+.text-holder {
+	text-align:left;
+	padding-top:20px;
+	width:960px;
+	margin:10px auto;
+}
+.col2 {
+	float:left;
+	position:relative;
+	width:450px;
+	margin:0 60px 25px 0;
+}
+.last {
+	margin-right:0;
+}
+
+/*--iv.-- icon --*/
+img.icon_left {
+	padding:0;
+	float:left;
+	margin: 3px 10px 0 0;
+}
+
+/***************************************************
+	05. SUBSCRIBE
+***************************************************/
+
+#subscribe_panel { margin-top:90px; }
+.subscribe {
+	height: 60px;
+	margin: 0 auto;
+	padding: 20px 0px 25px 0px;
+	text-align: center;
+    width: 455px;
+}
+input#email {
+  border: 4px solid white; 
+    -webkit-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+    -moz-box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+			0 0 16px rgba(0,0,0,0.1); 
+    box-shadow: 
+      inset 0 0 8px  rgba(0,0,0,0.1),
+            0 0 16px rgba(0,0,0,0.1); 
+   
+    background: rgba(255,255,255,0.5);
+    width: 320px;
+    height: 35px;
+    padding: 0 10px 0 10px;
+  	font:normal 14px "DroidSansRegular", sans-serif;
+	color:#777; 
+    float: left;
+    margin-right: 10px;
+    line-height: 40px;
+}
+input#submit {
+  	background:url(../../style/images/button/red_button.png) no-repeat 0 -1px;
+	width:97px;
+	height:43px;
+    border: 0 none;
+    cursor: pointer;
+    color: #ccc; padding-left:10px;
+    float: left;
+    font: normal 12px "DroidSansRegular", sans-serif; letter-spacing:2px;
+    text-shadow: 1px 1px 0px #393939;
+}
+.success {
+	font:normal 30px "DroidSansRegular", sans-serif;
+	color:#999;margin-top:5px;
+}
+.error {
+	color:#666;
+	font:normal 10px "DroidSansRegular", sans-serif;
+	position:relative;
+	float:left;
+	margin: 10px 5px 0px 0px;
+}
+
+input[type=text]:focus{ outline: 0 none; }
+
+/***************************************************
+	06. STAY IN TOUCH	
+***************************************************/
+
+/*--i.-- twitter--*/
+
+ .twitter {
+	width:960px;
+	margin:20px auto;
+	text-shadow:0 1px 0 #FFF;
+}
+.tickercontainer {
+	border:1px solid #ccc;
+	width:948px;
+	height:35px;
+	margin:0 auto;
+	padding:20px 0 0;
+	margin-bottom:40px;
+	overflow:hidden;
+	background:url("../../style/images/texture.jpg") repeat;
+}
+.tickercontainer .mask {
+	position:relative;
+	left:10px;
+	top:0;
+	width:925px;
+	overflow:hidden;
+}
+ul.newsticker {
+	position:relative;
+	left:950px;
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+ul.newsticker li {
+	float:left;
+	margin:0;
+	padding:10px;
+	background:none;
+}
+ul.newsticker a {
+	padding:0;
+	font:normal 16px "DroidSansRegular",sans-serif;
+}
+ul#tweet li#tweets {
+	list-style-type:none;
+	height:20px;
+	width:4000px;
+	padding:0;
+}
+ul#tweet li#tweets ul {
+	list-style-type:none;
+	margin:0;
+	padding:0 0 30px;
+}
+ul#tweet li#tweets ul li {
+	float:left;
+	font:normal 16px "DroidSansRegular",sans-serif;
+	height:20px;
+	margin:0 50px 0 0;
+	padding:0;
+}
+ul#tweet li#tweets ul li p,ul#tweet li#tweets ul li a,ul#tweet li#tweets ul li span {
+	margin-left:4px;
+	padding:0;
+}
+
+/*--ii.-- social icons --*/
+
+.social {
+	margin:10px 5px 30px 0;
+	text-align:center;
+	position:relative;
+}
+.social:active,input#submit:active {
+	-moz-transform:translateY(1px);
+	-ms-transform:translateY(1px);
+	-o-transform:translateY(1px);
+	-webkit-transform:translateY(1px);
+	transform: translateY(1px);
+}
+
+/*--iii.-- join us text --*/
+
+#scale-it {
+	width:500%;
+	margin:0px -200%;
+	padding:0;
+}
+
+/*--iv.-- back to top link --*/ 
+
+ #toTop {
+	text-align:center;
+	margin-top:10px;
+	cursor:pointer;
+	color:#333;
+	font-size: 12px;
+}
+
+.gmap-wrapper {
+position: relative;
+padding-bottom: 100%;
+padding-top: 0px;
+height: 0px;
+overflow: hidden;
+margin-bottom: 20px;
+}
+
+.gmap-wrapper iframe,
+.gmap-wrapper object,
+.gmap-wrapper embed {
+position: absolute;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+}

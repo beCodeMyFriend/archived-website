@@ -1,0 +1,81 @@
+---
+layout: post
+status: publish
+published: true
+title: Configurar y personalizar WordPress en tu propio dominio
+author:
+  display_name: Litze
+  login: Litze
+  email: luis@becodemyfriend.com
+  url: http://www.twitter.com/luislitze
+author_login: Litze
+author_email: luis@becodemyfriend.com
+author_url: http://www.twitter.com/luislitze
+wordpress_id: 1639
+wordpress_url: http://www.becodemyfriend.com/?p=1639
+date: '2011-07-15 02:05:14 +0000'
+date_gmt: '2011-07-15 01:05:14 +0000'
+categories:
+- Empresa
+tags:
+- Manuales
+- WordPress
+- Marketing
+- UX
+---
+<p><a title="Crear un blog en tu propio dominio con WordPress y Unelink" href="http://www.becodemyfriend.com/2011/07/crear-un-blog-en-tu-propio-dominio-con-wordpress-y-unelink/" target="_blank">Ya tenemos montado un bonito WordPress en blanco</a>. Ahora sólo falta personalizarlo y hacer que funcione bien.</p>
+<p>Entremos al CMS (Gestor de contenidos): <em>'www.huevosconchistorra.com/wp-login'</em></p>
+<p><em></em>Lo primero es <strong>trastearlo</strong>, acostumbramos a él, saber dónde están las cosas y qué hace cada una. No tiene gran misterio. Simplemente abrir y <strong>leer</strong> todos los menús de la columna de la izquierda e <strong>ir probando</strong>.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1650" title="Menú WordPress" src="{{site.baseurl}}/uploads/2011/07/Menú-WordPress.jpg" alt="Ups! Aquí había una captura de pantalla del tutorial…" width="157" height="375" /></p>
+<p>Cuando ya lo tengamos más o menos controlado… ¡Empezamos!</p>
+<h3>Subir archivos.</h3>
+<p>Hay dos formas de subir archivos:</p>
+<h4>Método #1. Desde el CMS. Fácil, menos seguro.</h4>
+<p>Desde el CMS se pueden subir temas (.zip), plugins (.zip), imágenes, documentos, vídeos… directamente a su carpeta correspondiente. Pero para eso, primero hay que establecer los permisos adecuados. Siguiendo este proceso <strong>una sola vez</strong> ya podremos subir siempre que queramos.</p>
+<p>Volvemos a Cyberduck y abrimos la conexión (Paso 8 de la sección <em>“Cliente FTP e instalación de WordPress”</em> del <a title="Crear un blog en tu propio dominio con WordPress y Unelink" href="http://www.becodemyfriend.com/2011/07/crear-un-blog-en-tu-propio-dominio-con-wordpress-y-unelink/" target="_blank">primer tutorial</a>). Si ya habéis entrado antes puede que os conecte automáticamente.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1496" title="Nueva conexión con CyberDuck" src="{{site.baseurl}}/uploads/2011/07/12_Open-connection-CyberDuck1.jpg" alt="Ups! Aquí debería haber una captura de pantalla del tutorial…" width="601" height="527" /></p>
+<p>Abrís la carpeta <em>“httpdocs”</em> y ahí encontraréis la carpeta <em>“wp-content”</em>. Dentro de esta hay que dar permisos a tres carpetas: <em>“plugins”</em>, <em>“themes”</em> y <em>“uploads”</em>.</p>
+<p><strong>Preferiblemente una a una</strong>, clic con botón derecho y vais a <em>“Info”</em>. Una vez ahí, os aparecerá una ventana pequeña y vais a <em>“Permissions”</em>.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1648" title="Carpeta sin permisos" src="{{site.baseurl}}/uploads/2011/07/Carpeta-sin-permisos.jpg" alt="Ups! Aquí había una captura de pantalla del tutorial…" width="401" height="231" /></p>
+<p>Veréis que <em>“Group”</em> y <em>“Others”</em> no tienen permiso para escribir. Seleccionáis ambos <em>checkbox</em> y le dais a <em>“Apply changes recursively”</em>.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1647" title="Carpeta con permisos" src="{{site.baseurl}}/uploads/2011/07/Carpeta-con-permisos.jpg" alt="Ups! Aquí había una captura de pantalla del tutorial…" width="401" height="233" /></p>
+<p>Una vez hecho esto en las tres, podréis subir archivos desde el CMS.</p>
+<p><strong>NOTA IMPORTANTE:</strong> Este paso hay que hacerlo <strong>SIEMPRE</strong> para la carpeta <em>“uploads”</em>. Sino, no os dejará subir contenido multimedia a vuestras páginas o entradas desde el CMS.</p>
+<h4>Método #2. Por FTP con Cyberduck. Menos fácil, más seguro.</h4>
+<p>Lo recomendable es dejar “uploads” como única carpeta con permisos de escritura y subir los archivos desde el CMS, pero también se puede hacer vía FTP.</p>
+<p>Si mantenemos las carpetas <em>“plugins”</em> y <em>“themes”</em> con los permisos cerrados, sólo podremos subir archivos por FTP.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1648" title="Carpeta sin permisos" src="{{site.baseurl}}/uploads/2011/07/Carpeta-sin-permisos.jpg" alt="Ups! Aquí había una captura de pantalla del tutorial…" width="401" height="231" /></p>
+<p>Para subir plugins o temas, sólo tenemos que descargarnos el plugin o el tema, descomprimirlo y subir la carpeta resultante a la carpeta correspondiente del FTP. Si es un plugin irá a la carpeta <em>“plugins”</em> y si es un tema irá a la carpeta <em>“themes”</em>.</p>
+<h3>Instalar temas.</h3>
+<p>Lo primero que querremos cambiar será la imagen de nuestro blog. No queremos que sea el tema por defecto o que se parezca al de un amigo. Queremos una imagen original y atractiva.</p>
+<p>Bien, la única forma de conseguir esta exclusividad es que los semidioses diseñador y programador te hagan un tema personalizado, pero eso vale dinero. Y no queremos gastarnos dinero.</p>
+<p>La opción que usamos los mortales es pasar horas buscando en la<a title="Galería de temas de WordPress" href="http://wordpress.org/extend/themes/" target="_blank"> librería de temas de WordPress</a> y elegir el que más nos gusta. Siempre habrá alguien que lo haya elegido también, pero internet es muy grande. Esperemos no encontrárnoslo.</p>
+<p>Cuando ya tengamos elegido el tema, simplemente lo subimos usando el <strong>Método #1</strong> o el <strong>Método #2</strong>. (Yo uso el 2). Después, id al menú <em>“Appearance”</em>, podréis activar o desactivar los temas instalados y <em>voilá! </em>Ya tenemos nueva imagen.</p>
+<h3>Instalar plugins.</h3>
+<p>Los plugins son los “extras” de WordPress, por llamarlos de alguna forma. Son como mini programas que se integran con el CMS y permiten hacer muchas cosas que WordPress no trae por defecto. Es todo un mundo. Id a la <a title="Librería de plugins de WordPress" href="http://wordpress.org/extend/plugins/" target="_blank">librería de plugins de WordPress</a> y encontraréis miles de ellos.</p>
+<p>La instalación es exactamente igual a la de los temas. Así que, elegid: <strong>Método #1</strong> o <strong>Método#2</strong> y a rodar.</p>
+<p>Os recomiendo instalar <em><a title="Platinum SEO Pack" href="http://wordpress.org/extend/plugins/platinum-seo-pack/" target="_blank">“Platinum SEO Pack”</a></em>, <em><a title="Akismet" href="http://wordpress.org/extend/plugins/akismet/" target="_blank">“Akismet”</a></em>, <em><a title="Google Analytics for WordPress" href="http://wordpress.org/extend/plugins/google-analytics-for-wordpress/" target="_blank">“Google Analytics for WordPress”</a></em> y <em><a title="SocioFluid" href="http://wordpress.org/extend/plugins/sociofluid/" target="_blank">“SocioFluid”</a></em>.</p>
+<h3>Crear usuarios.</h3>
+<p>Probablemente no vais a ser los únicos que escribís en el blog, así que desde la sección <em>“Users”</em> podréis crear nuevos usuarios para vuestros socios, colaboradores o amigos con diferentes perfiles. Podrán ser colaboradores, administradores, suscriptores… Todo un mar de permisos…</p>
+<p>Una vez creados, podrán entrar desde <em>'www.huevosconchistorra.com/wp-login'</em> con su nombre de usuario y contraseña.</p>
+<h3>Posible error.</h3>
+<p>Es posible que, cuando tengáis creadas varias páginas, entrando a <em>'www.huevosconchistorra.com'</em> como visitantes, sólo os responda la página de inicio y no podáis acceder a otras como <em>'www.huevosconchistorra.com/blog'</em> o <em>'www.huevosconchistorra.com/about-us'</em>. Os devolverá un error 404.</p>
+<p>Bien, esto es muy sencillo de solucionar. Cread un .txt con Bloc de notas (Windows) o TextEdit (OS X) con el siguiente contenido:</p>
+<pre class="php" name="code"># BEGIN WordPress
+&lt;IfModule mod_rewrite.c&gt;
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+&lt;/IfModule&gt;
+# END WordPress</pre>
+<p>Lo guardáis con el nombre <em>“htaccess.txt”</em> y lo subís con Cyberduck a la carpeta <em>“httpdocs”</em>. Una vez esté ahí, simplemente le cambiáis el nombre por: <em>“.htaccess”</em> y problema resuelto.</p>
+<p><strong>¡OJO! Muy importante el detalle del punto antes de htaccess y quitar el .txt de detrás.</strong></p>
+<h3><strong></strong>SEO. (Search Engine Optimization)</h3>
+<p>Si no sabéis de qué va esto del SEO, ya tenéis <a title="Organic SEO Basics" href="http://www.becodemyfriend.com/2011/05/organic-seo-basics/" target="_blank">otra cosa que aprender</a>. Todo un arte =)</p>
+<p>El plugin <em>“Platinum SEO Pack”</em> es muy completo y con él podréis empezar a posicionar vuestra página o blog en los buscadores. Además, hay una opción en la configuración de WordPress que hará vuestras <a title="URLs semánticas" href="http://es.wikipedia.org/wiki/URL_sem%C3%A1nticas" target="_blank">URLs semánticas</a>, que ayuda bastante también.</p>
+<p>Id a la sección <em>“Settings”</em>, al menú <em>“Permalinks”</em> y marcad la opción <em>“Month and name”</em>. Así, las URLs pasarán de ser <em>'www.huevosconchistorra.com/index.php?seccion=noticias&amp;id_noticia=133'</em> a <em>'www.huevosconchistorra.com/noticias/url-amigables.html'</em>. Mucho mejor, ¿no?</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1652" title="Ajustes de Permalinks" src="{{site.baseurl}}/uploads/2011/07/Ajustes-de-Permalinks1.jpg" alt="Ups! Aquí había una captura de pantalla del tutorial…" width="275" height="341" /></p>
+<p>Insisto en lo que escribía al principio del post… Esto os puede guiar y solventar algún problema puntual, pero lo mejor es remangarse y ponerse a hacerlo uno mismo aunque no sepamos. <strong>No subestiméis el poder de “Do it yourself”</strong> ;)</p>

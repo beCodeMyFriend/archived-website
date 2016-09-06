@@ -1,0 +1,45 @@
+---
+layout: post
+status: publish
+published: true
+title: 'VLCTechHub: Making of'
+author:
+  display_name: Emma
+  login: Emma
+  email: eraseunavez@gmail.com
+  url: http://www.becodemyfriend.com
+author_login: Emma
+author_email: eraseunavez@gmail.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 3974
+wordpress_url: http://www.becodemyfriend.com/?p=3974
+date: '2013-02-07 17:24:40 +0000'
+date_gmt: '2013-02-07 16:24:40 +0000'
+categories:
+- Empresa
+- Programación
+tags:
+- Open Source
+- Programación
+- evento
+- Lean Startup
+- Proyecto beCode
+---
+<p><a href="http://vlctechhub.org/" target="_blank"><strong>VLCTechHub</strong></a> ha cumplido un año y para celebrarlo he sacado una nueva versión. Esta versión no habría sido posible sin la crítica constructiva de @elmendalerenda, @xav1uzz y @borillo. Os quiero contar el porqué de la nueva versión y cómo está hecha.</p>
+<h2>Érase una vez...</h2>
+<p>La <strong>versión anterior</strong> era una agenda publicada mensualmente en una <strong>newsletter</strong>. El proceso era muy <strong>manual</strong>: pedir la agenda entre los “habituales” creadores de eventos, confeccionar la newsletter en <a href="http://mailchimp.com/" target="_blank">Mailchimp</a> y programar los tweets del mes. Como prueba de concepto funcionó muy bien, la gente se apuntó tanto a la lista como a la cuenta de twitter. Pero suponía un esfuerzo por parte de los creadores de eventos el tener la agenda clara con a veces casi un mes de adelanto. Y por mi parte, pelearme con <a href="https://www.google.es/search?hl=es&amp;site=imghp&amp;tbm=isch&amp;source=hp&amp;biw=1422&amp;bih=955&amp;q=mono+malvado&amp;oq=mono+malvado&amp;gs_l=img.12...0.0.0.1406.0.0.0.0.0.0.0.0..0.0...0.0...1ac..2.img.hFS-GpIBHzA#hl=es&amp;tbo=d&amp;site=imghp&amp;tbm=isch&amp;sa=1&amp;q=mono+malvado&amp;oq=mono+malvado&amp;gs_l=img.12...0.0.0.8409.0.0.0.0.0.0.0.0..0.0...0.0...1c..2.img.zrsg6wJFj50&amp;bav=on.2,or.r_gc.r_pw.r_qf.&amp;bvm=bv.41867550,d.d2k&amp;fp=42b824c73d800f1&amp;biw=1855&amp;bih=990" target="_blank">el mono</a> todos los meses y preparar los tweets en Hootsuite. He acabado del mono hasta el moño.</p>
+<h2>Las entrañas DRY</h2>
+<p>Si la versión anterior era un experimento <a href="http://en.wikipedia.org/wiki/KISS_principle" target="_blank"><strong>KISS</strong></a>, esta quería que fuera un experimento <a href="http://en.wikipedia.org/wiki/Don't_repeat_yourself" target="_blank"><strong>DRY</strong></a>. Las “especificaciones” básicas: un listado de eventos por llegar, quizá un calendario/planner (que luego se cayó del mvp) y un pequeño formulario para rellenar un nuevo evento.</p>
+<p>Para mantener <strong>un listado sencillo de eventos</strong> dedicí prescindir de base de datos y tener un <a href="https://docs.google.com/"><strong>Google Spreadsheet</strong></a>. Así el formulario de alta de evento es el formulario que provee Google como interfaz de alta en los spreadsheets.<br />
+Además existe toda una API para integrarse con los productos de Google, pero las hojas de cálculo pueden <a href="http://support.google.com/drive/bin/answer.py?hl=es&amp;answer=183965">publicarse</a>, es decir, su contenido es público y pueden consumirse en diferentes formatos: HTML, JSON…</p>
+<p>Las columnas que tiene la hoja de cálculo actualmente son las mismas que se piden en el formulario más una columna de “Publicado”. Cuando alguien introduce un nuevo evento, me llega un mail avisándome de una nueva entrada. Al visitarla y poner a “1” la columna de “Publicado” empieza la magia.</p>
+<p>Hay dos hojas más: una hoja con sólo los eventos publicados, y otra hoja con dos columnas para exponer como <strong>RSS</strong>, con título y cuerpo. Cada vez que se pone a <em>publicado</em> un nuevo evento, se copia automáticamente en estas hojas.</p>
+<p>Cuando alguien visita <strong>la web</strong>, se pide el fichero en JSON de la hoja de cálculo de eventos publicados, se ordenan por fecha y se muestran sólo aquellos que están por venir. Todo en <strong>Javascript</strong>, todo en cliente.</p>
+<p>Al no tener código de servidor están <strong>alojadas</strong> directamente como <a href="http://pages.github.com/" target="_blank"><strong>Github Pages</strong></a>.</p>
+<p>Para automatizar la <strong>publicación</strong> de eventos por <strong>correo</strong> y por <strong>twitter</strong> he optado por el servicio <a href="https://ifttt.com/" target="_blank"><strong>ifttt.com</strong></a>. Cada vez que hay una nueva entrada en la hoja RSS, se envia un mail al <a href="https://groups.google.com/forum/#!forum/vlctechhub" target="_blank">GoogleGroups</a>, así la gente que quiera puede estar informada mediante mail. He hecho otra receta para añadir un tweet automáticamente en <a href="http://hootsuite.com/" target="_blank">Hootsuite</a> y él establece el mejor horario para tuitearlo.</p>
+<p>Así, al publicar un evento, se disparan las publicaciones automáticamente en la <a href="https://vlctechhub.org" target="_blank">web</a>, <a href="https://groups.google.com/forum/#!forum/vlctechhub" target="_blank">mail</a> y <a href="https://twitter.com/VLCTechHub" target="_blank">twitter</a>, sin programación.</p>
+<h2>Ventajas en inconvenientes</h2>
+<p>La nueva versión ha sido un <strong>acierto</strong>, se ha vuelto a <strong>dinamizar</strong> la publicación de eventos tan pronto como están disponibles y se ha llegado a otros grupos. No tendría sentido no poner el código en un sitio como <a href="https://github.com/hell03610/VLCTechHub" target="_blank">Github</a>, donde cualquiera puede verlo, comentar y extender. El <strong>código</strong> es <strong>escaso</strong> y simple. Sin embargo, hay mucha <strong>lógica</strong> de publicación tanto en la hoja de cálculo como en el servicio ifttt que <strong>no es compartida</strong>. La automatización no permite un nivel de personalización alto fácilmente, esto hace que los tweets no lleven el link del sitio de origen del evento y en su lugar siempre esté http://vlctechhub.org En este caso, merece la pena la perdida de personalización por la sencillez y rapidez de la funcionalidad implementada.</p>
+<h2>Futuro</h2>
+<p>El futuro VLCTechHub tendrá una visualización tipo <strong>calendario</strong>/planner para ver el histórico de eventos que se han realizado. También se planea integrarlo con <a href="http://www.feed-your-brain.com/" target="_blank">Feed Your Brain</a> cuando saquen la nueva versión. Y tener<strong> tweets recordatorios</strong> cuando se acerque el día del evento. La<strong> integración con Google Calendar</strong> ya está implementada, para que cualquiera pueda añadir un evento su calendario y tener la potencia de los recordatorios del calendar.</p>
+<p>Si estás<strong> interesado en participar</strong> en el desarrollo del futuro VLCTechHub o quieres aportar con otra idea, manda un mail a <strong>vlctechhub@gmail.com</strong></p>

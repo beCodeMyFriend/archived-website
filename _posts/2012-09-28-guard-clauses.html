@@ -1,0 +1,33 @@
+---
+layout: post
+status: publish
+published: true
+title: Guard Clauses
+author:
+  display_name: Miguel Angel
+  login: Miguel Angel
+  email: mike@becodemyfriend.com
+  url: http://www.becodemyfriend.com
+author_login: Miguel Angel
+author_email: mike@becodemyfriend.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 3193
+wordpress_url: http://www.becodemyfriend.com/?p=3193
+date: '2012-09-28 16:50:27 +0000'
+date_gmt: '2012-09-28 15:50:27 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Javascript
+---
+<p>If we dig just a little bit in a random github project we will find a piece of code similar to this</p>
+<p><a href="{{site.baseurl}}/uploads/2012/08/guardClause1.png"><img class="aligncenter size-full wp-image-3196" title="guardClause1" src="{{site.baseurl}}/uploads/2012/08/guardClause1.png" alt="guard clause" width="575" height="280" /></a></p>
+<p>In my opinion this piece of code has at least a problem: the entire content is contained in a conditional clause.</p>
+<p>Having all the method content inside a conditional clause is a well known anti-pattern, Beck points at the problem in his book Implementation Patterns (Beck. K, Implementation Patterns. Addison-Wesley, p 70-71)</p>
+<p>So we can refactor the code and the result will be</p>
+<p><a href="{{site.baseurl}}/uploads/2012/08/guardClause2.png"><img class="aligncenter size-full wp-image-3197" title="guardClause2" src="{{site.baseurl}}/uploads/2012/08/guardClause2.png" alt="guard clause refactored" width="575" height="280" /></a></p>
+<p>Now the code is more readable and it is clear that there is an exception that don't affect the rest of the method code.</p>
+<p>Beck quotes:</p>
+<blockquote><p>When I read the first version, I make a note to look for an else clause while I am reading the then clause. I mentally put the condition on a stack. All of this is a distraction while I am reading the body of the then clause</p></blockquote>
+<p>(p. 70)</p>

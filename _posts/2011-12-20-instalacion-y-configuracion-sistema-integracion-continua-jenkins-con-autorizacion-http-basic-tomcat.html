@@ -1,0 +1,157 @@
+---
+layout: post
+status: publish
+published: true
+title: Instalación y configuración sistema integración contínua Jenkins con autorización
+  HTTP basic Tomcat
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2482
+wordpress_url: http://www.becodemyfriend.com/?p=2482
+date: '2011-12-20 15:43:15 +0000'
+date_gmt: '2011-12-20 14:43:15 +0000'
+categories:
+- Programación
+tags:
+- Sistemas
+- Linux
+- integracion continua
+---
+<div style="text-align:justify; "><strong>NOTAS PREVIAS</strong></p>
+<p>Esta instalación ha sido probada en una Ubuntu 11.04 Server recién instalada.</p>
+<h3>PASO 1. Actualización del sistema base.</h3>
+<pre class="java" name="code">apt-get update
+apt-get -y install nano</pre>
+<h3>PASO 2. Descarga e instalación de Java.</h3>
+<p>Nos descargamos el tgz del JDK versión 7 de la pagina de Java.</p>
+<pre class="java" name="code">http://www.oracle.com/technetwork/java/javase/downloads/index.html</pre>
+<p>y lo descomprimimos en el servidor.</p>
+<pre class="java" name="code">tar xvfz jdk-7u1-linux-i586.tar.gz -C /tmp/</pre>
+<p>(el nombre del tgz podrá variar en función del update descargado)</p>
+<p>Lo movemos al directorio tmp con un nombre más cordial.</p>
+<pre class="java" name="code">mv jdk1.7.0_01/ /opt/java</pre>
+<h3>PASO 3. Configuración variables de entorno de Java.</h3>
+<p>Editamos el fichero</p>
+<pre class="java" name="code">nano -w /etc/profile</pre>
+<p>y al final del mismo añadimos</p>
+<pre class="java" name="code">export JAVA_HOME="/opt/java"
+export PATH=${PATH}:${JAVA_HOME}/bin</pre>
+<p>Lo recargamos</p>
+<pre class="java" name="code">source /etc/profile</pre>
+<h3>PASO 4. Instalación y configuración básica de Tomcat.</h3>
+<pre class="java" name="code">cd /tmp/
+wget http://apache.rediris.es/tomcat/tomcat-6/v6.0.33/bin/apache-tomcat-6.0.33.zip
+unzip apache-tomcat-6.0.33.zip
+mv apache-tomcat-6.0.33 /opt/tomcat
+chmod u+x /opt/tomcat/bin/*</pre>
+<p>Editamos el fichero de usuario de Tomcat</p>
+<pre class="java" name="code">nano -w /opt/tomcat/conf/tomcat-users.xml</pre>
+<p>y dejamos el siguiente contenido</p>
+<pre class="java" name="code"><!--?xml version='1.0' encoding='utf-8'?-->
+<tomcat-users>
+    <user username="admin" password="xxxxxxxx" roles="admin,manager">
+</user></tomcat-users>
+</pre>
+<p>reemplazando las xxxxxxxx por tu clave de acceso al administrador de Tomcat.</p>
+<h3>PASO 5. Instalación de Jenkins.</h3>
+<p>Para esta instalación y por motivos de actualización y autorización, mi elección es descargar el .war más reciente e instalar el Jenkins de manera manual. La mejor opción de todas las que he probado… :P</p>
+<pre class="java" name="code">cd /tmp/
+wget http://mirrors.jenkins-ci.org/war/latest/jenkins.war
+cp jenkins.war /opt/tomcat/webapps/</pre>
+<h3>PASO 6. Autorización Jenkins.</h3>
+<p>Para autorizar el acceso a Jenkins, he optado por usar la autorización básica HTTP mediante el fichero de claves de Tomcat nativo, editando el fichero que viene por defecto con el Jenkins para su configuración de la aplicación</p>
+<pre class="java" name="code">nano -w /opt/tomcat/webapps/jenkins/WEB-INF/web.xml</pre>
+<p>con el siguiente contenido</p>
+<pre class="java" name="code"><!--?xml version="1.0" encoding="UTF-8"?-->
+
+  Jenkins v1.437
+  Build management system
+
+    Stapler
+    org.kohsuke.stapler.Stapler
+
+      default-encodings
+      text/html=UTF-8
+
+    Stapler
+    /*
+
+    encoding-filter
+    hudson.util.CharacterEncodingFilter
+
+    authentication-filter
+    hudson.security.HudsonFilter
+
+    csrf-filter
+    hudson.security.csrf.CrumbFilter
+
+    plugins-filter
+    hudson.util.PluginServletFilter
+
+    encoding-filter
+    /*
+
+    authentication-filter
+    /*
+
+    csrf-filter
+    /*
+
+    plugins-filter
+    /*
+
+    hudson.WebAppMain
+
+    admin
+
+    jenkins
+
+      user-resource
+      pages which require login
+      *.jsp
+      *.html
+      /*
+      GET
+      POST
+
+      Must authenticate before querying the system
+      jenkins
+
+      NONE
+
+    BASIC
+    Who are ayou?
+
+    HUDSON_HOME
+    java.lang.String
+
+    xml
+    application/xml
+
+    log
+    text/plain
+
+    war
+    application/octet-stream
+
+    ear
+    application/octet-stream
+
+    rar
+    application/octet-stream</pre>
+<p>Como vemos en el fichero, cualquier URL dentro de la aplicación Jenkins estará sujeta a autorización del role</p>
+<pre class="java" name="code">jenkins</pre>
+<p>Ahora, para crear un usuario bastará con editar el fichero</p>
+<pre class="java" name="code">nano -w /opt/tomcat/conf/tomcat-users.xml</pre>
+<p>y debajo del usuario admin, ir poniendo los nuevos usuarios asignandoles el role Jenkins</p>
+<pre class="xml" name="code"><!--?xml version='1.0' encoding='utf-8'?--></pre>
+<p>Happy CI! :D</p></div>
+<h3>Entradas similares:</h3>
+<p><a href="http://www.becodemyfriend.com/2011/11/instalacion-y-configuracion-de-servidor-de-integracion-continua-con-soporte-php/" target="_blank" title="Instalación y configuración de servidor de integración contínua con soporte PHP">Instalación y configuración de servidor de integración contínua con soporte PHP</a><br />
+<a href="http://www.becodemyfriend.com/2011/12/instalacion-de-la-ultima-version-de-mysql-desde-los-binarios-oficiales/" target="_blank" title="Instalación de la última versión de MySQL desde los binarios oficiales">Instalación de la última versión de MySQL desde los binarios oficiales</a><br />
+<a href="http://www.becodemyfriend.com/2011/09/uso-del-mod_proxy-de-apache-para-subdominios/" target="_blank" title="Uso del mod_proxy de Apache para subdominios">Uso del mod_proxy de Apache para subdominios</a></p>

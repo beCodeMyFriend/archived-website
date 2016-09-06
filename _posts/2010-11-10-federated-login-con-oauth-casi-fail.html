@@ -1,0 +1,36 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Federated login con OAuth: casi #fail'
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+wordpress_id: 239
+wordpress_url: http://www.becodemyfriend.com/?p=239
+date: '2010-11-10 16:58:32 +0000'
+date_gmt: '2010-11-10 15:58:32 +0000'
+categories:
+- Programación
+tags:
+- Google
+- OAuth
+- OpenID
+- Twitter
+---
+<p>En el artículo <a href="http://www.becodemyfriend.com/2010/10/el-dilema-de-la-autenticacion-universal-con-openid-y-oauth/" target="_blank">El dilema de la autenticación universal con OpenID y OAuth</a> expliqué en rasgos generales las similitudes entres OAuth y OpenId y para qué sirven. En el artículo <a href="http://www.becodemyfriend.com/2010/10/entendiendo-oauth-con-twitter-from-the-scratch/" target="_blank">Entendiendo OAuth con Twitter (from scratch)</a> vimos un ejemplo práctico de uso del protocolo OAuth con PHP.</p>
+<p>Después de estudiar varias APIs y realizar varias pruebas, he llegado a la conclusión de que la implementación generalizada de OAuth no es la adecuada para montar un sistema de autenticación federada. Tal y como he dicho, el problema es la implementación, <strong>no el protocolo</strong>. Veamos por qué.</p>
+<p>Cuando hablamos de <strong>federated login</strong>, nos referimos a un sistema de autenticación en el cual los usuarios pueden demostrar que son ellos, utilizando un proveedor externo de credenciales, sin necesidad de disponer de una cuenta en nuestro sistema. Por ejemplo, cada vez que el usuario pepito@gmail.com quiere trabajar en nuestro entorno autenticado, delega en Gmail el proceso de validarlo como usuario en nuestro sistema. Este esquema hoy en día se puede implementar con OpenID y con OAuth.</p>
+<p>Por algún motivo que desconozco, los proveedores piensan que OpenID sirve para login federado y OAuth para autorización de acceso a recursos privados, y este es el fallo de implementación: a pesar de solo querer validar al usuario sin acceder a ninguno de sus datos privados, las APIs en general te fuerzan a pedirle autorización de acceso a sus datos.</p>
+<p>En <strong>Twitter</strong> por ejemplo, en el proceso de negociación de OAuth, el scope tiene dos posibles valores o niveles de acceso a la información del usuario: solo lectura o lectura y escritura. Esto se decide en el momento de registrar la aplicación en Twitter y el usuario ve estos niveles de acceso cuando se le pide autorizar la aplicación. El problema es que Twitter, a pesar de haber apostado por OAuth en lugar de OpenID como sistema de login federado con su solución <strong>“Sign in with Twitter”</strong>, incluso en su nivel de solo lectura, otorga acceso a todos los datos de la cuenta de usuario. El usuario puede no estar muy de acuerdo con esto, aunque en la mayoría de los casos no sea consciente de qué es lo que esta ocurriendo. En twitter no supone un gran problema, ya que la mayoría de la información es pública, sin embargo, ¿que hay de los mensajes privados y los datos personales del usuario?</p>
+<p>En el caso de <strong>Google</strong>, el scope tiene muchas más opciones, pero todas ellas dan acceso a datos privados del usuario. En <a href="http://code.google.com/apis/gdata/docs/directory.html" target="_blank">esta url</a> hay una relación de todos los posibles scopes de la API. El scope se decide dinámicamente y no en el momento del registro (como Twitter), y el usuario conoce el scope con un mensaje como este:<br />
+<img class="aligncenter size-full wp-image-240" title="Acceso a Contacts mediante OAuth" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-10-at-10.29.01-AM.png" alt="" width="761" height="157" /><br />
+Google es uno de los proveedores que ha implementado ambos protocolos (OpenID + OAuth), incluso tienen un proyecto en marcha bastante ingenioso que <a href="http://code.google.com/apis/accounts/docs/OpenID.html" target="_blank">combina ambos en un híbrido</a>. Todavía no he tenido la oportunidad de probarlo, por ahora me estoy centrando en OAuth y dejando OpenID de lado, pero por lo que he visto el híbrido toma como protocolo base OpenID para lanzar requests OAuth (que alguien me corrija si me equivoco).</p>
+<p>Un tercer ejemplo, <strong>Yahoo!</strong>, aparentemente si que ha tenido en cuenta la cuestión de la privacidad:<br />
+<img class="aligncenter size-full wp-image-241" title="Registro de aplicación en Yahoo!" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-10-at-10.28.42-AM.png" alt="" width="751" height="167" /><br />
+Digo aparentemente porque tengo que reconocer que todavía no lo he comprobado. El acceso es compartido para todas las aplicaciones de Yahoo! (Flickr, Delicious entre otros). Cuando tenga más información al respecto completaré este post.</p>
+<p>En cualquier caso, los proveedores deberían plantearse incluir un scope especifíco en sus APIs de solo autenticación, con acceso únicamente a un ID y sin acceso a datos privados. De este modo OAuth se convertiría en una solución tan estandarizada como OpenID para delegar la autenticación de usuarios.</p>

@@ -1,0 +1,131 @@
+---
+layout: post
+status: publish
+published: true
+title: TDD on rails
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+wordpress_id: 701
+wordpress_url: http://www.becodemyfriend.com/?p=701
+date: '2011-02-22 17:40:00 +0000'
+date_gmt: '2011-02-22 16:40:00 +0000'
+categories:
+- Programación
+tags:
+- Agilismo
+- PHP
+- Programación
+- TDD
+---
+<p>Hace unos días tuve que viajar desde Valencia a Barcelona en tren. De ahí el título de este post, si estabas pensando en Ruby... te he engañado.</p>
+<p>Me acomodé en el asiento, tenía una chica muy guapa sentada en frente, lo cual siempre ayuda a programar mejor (o tal vez peor, no estoy seguro). Encendí el portátil, arranqué el Eclipse y... oh sorpresa, oh dolor, oh campos de soledad, oh mústios collados: el portátil es prestado y no tengo instalada ninguna suite. Ni PHPUnitt, ni SimpleTest ni nada.</p>
+<p>Me planteé la posibilidad de programar sin suite, si os dijera que no lo hago a veces, estaría mintiendo. Pero la verdad es que nunca lo hago para prototipar componentes o building blocks. En este caso quería aprovechar mis tres horas de trayeto para prototipar unas ideas que tengo sobre una DSL (Data Source Layer) para PHP. Plantearse hacer algo así sin tests me resulta directamente... antinatural =)</p>
+<p>Después de meditarlo durante unos minutos decidí construir mi propia suite. Es muy sencilla, ni mocks, ni stubs, solamente dos assertions True y Equals y un output en html, para que se pueda lanzar desde un browser. Por eso he bautizado la clase como PoorsManTest. Y es más que suficiente para programar casi cualquier cosa. Hete aquí el código (no me he molestado en refactorizar, rebajad el nivel de exigencia please):</p>
+<pre class="php" name='code'>
+class PoorsManTest
+{
+	public function __construct()
+	{
+		$this->anounceClass();
+		$this->executeTests();
+	}
+	
+	protected function anounceClass()
+	{
+		$class = get_class($this);
+		echo "&lt;h3>$class&lt;/h3>";
+	}
+	
+	protected function executeTests()
+	{
+		$self = new ReflectionClass($this);
+		$methods = $self->getMethods();
+		
+		foreach($methods as $oneMethod)
+		{
+			$methodName = $oneMethod->name;
+			$isTest = (substr($methodName, 0, 4) == "test");
+			
+			if($isTest)
+			{
+				echo "&lt;h4 style='margin:0;'>Executing $methodName&lt;/h4>";
+				try {
+					$this->$methodName();
+				}
+				catch(Exception $e)
+				{
+					echo "&lt;span style='color:red;'>Failure&lt;/span>&nbsp;";
+					echo $e->getMessage();
+					echo "&lt;br/>File " . $e->getFile() . " on line " . $e->getLine()."&lt;br />";
+					echo "&lt;pre>".$e->getTraceAsString()."&lt;/pre>";
+					continue;
+				}
+				echo "&lt;span style='color:green;'>Success&lt;/span>";
+			}
+		}
+	}
+	
+	public function assertEquals($expected, $actual)
+	{
+		if($expected == $actual)
+		{
+			return true;
+		}
+		
+		Throw new Exception("Failed aserting that [$expected] and [$actual] are equal");
+	}
+	
+	public function assertTrue($actual)
+	{
+		if($actual)
+		{
+			return true;
+		}
+		
+		Throw new Exception("Failed aserting that [$actual] is true");
+	}
+}
+</pre>
+<p>Y un test funcional para asegurar que todo va bien:</p>
+<pre class="php" name='code'>
+require_once("PoorsManTest.php");
+
+class PMTestProbe extends PoorsManTest {
+
+	public function testEqualsTrue()
+	{
+		$this-&gt;assertEquals(1, 1);
+	}
+
+	public function testEqualsFalse()
+	{
+		$this-&gt;assertEquals(1, 2);
+	}
+
+	public function testTrueTrue()
+	{
+		$this-&gt;assertTrue(true);
+	}
+
+	public function testTrueFalse()
+	{
+		$this-&gt;assertTrue(false);
+	}
+
+	public function testProbeExceptionCatch()
+	{
+		throw new Exception("Some error message");
+	}
+}
+
+$pmtest = new PMTestProbe();
+</pre>
+<p>El output queda así:</p>
+<p style="text-align: left;"><img class="aligncenter size-full wp-image-702" title="Screen shot 2011-02-22 at 4.54.48 PM" src="{{site.baseurl}}/uploads/2011/02/Screen-shot-2011-02-22-at-4.54.48-PM.png" alt="" width="711" height="454" /></p>
+<p style="text-align: left;">Tiempo total empleado: unos 20 minutos.</p>
+<p style="text-align: left;">Conclusión: hacer las cosas bien es una cuestión de hábitos y voluntad. Si no dispones de herramientas para hacer TDD, o no te gustan las que hay, crea la tuya propia. Como dicen 37Signals en <a title="Getting Real, 37Signals" href="http://gettingreal.37signals.com/" target="_blank">Getting Real</a>, ráscate donde te pica.</p>

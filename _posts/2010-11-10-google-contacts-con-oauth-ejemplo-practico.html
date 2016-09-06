@@ -1,0 +1,205 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Google Contacts con OAuth: ejemplo práctico'
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+wordpress_id: 248
+wordpress_url: http://www.becodemyfriend.com/?p=248
+date: '2010-11-10 18:20:17 +0000'
+date_gmt: '2010-11-10 17:20:17 +0000'
+categories:
+- Programación
+tags:
+- Google
+- OAuth
+- PHP
+- Mac
+---
+<div>En este artículo vamos a implementar dos features muy útiles: autenticar a un usuario en nuestro sistema con su cuenta de Google mediante OAuth y leer su lista de contactos.</p>
+<p>En el artículo anterior<a href="http://www.becodemyfriend.com/2010/10/entendiendo-oauth-con-twitter-from-the-scratch/"> Entendiendo OAuth con Twitter (from the scratch)</a> vimos cómo utilizar el protocolo OAuth sin librerías externas. Ese ejemplo era conceptual para entender cómo funciona el protocolo, aunque usarlo de ese modo es bastante hardcore. En este ejemplo, usaremos la librería OAuth estándar de facto para PHP. Si tu instalación de PHP no dispone de OAuth, <a href="http://www.becodemyfriend.com/2010/11/instalacion-de-la-extension-php-oauth-en-mac-os-x-10-6-snow-leopard/" target="_blank">aquí</a> tienes una pequeña guía de instalación.</p>
+<p>Lo primero que necesitamos es registrar nuestra aplicación en Google en la URL<a href="https://www.google.com/accounts/ManageDomains"> https://www.google.com/accounts/ManageDomains</a> donde encontraremos el siguiente formulario:</p>
+<p><img class="aligncenter size-full wp-image-249" title="pic1" src="{{site.baseurl}}/uploads/2010/11/pic1.png" alt="" width="626" height="598" /></p>
+<p>Nuestro dominio aparecerá en la parte inferior de la pantalla:</p>
+<p><img class="aligncenter size-full wp-image-250" title="pic2" src="{{site.baseurl}}/uploads/2010/11/pic2.png" alt="" width="617" height="127" /></p>
+<p>Hacemos click en el enlace para verificarlo:</p>
+<p><img class="aligncenter size-full wp-image-251" title="pic3" src="{{site.baseurl}}/uploads/2010/11/pic3.png" alt="" width="603" height="609" /></p>
+<p>Tras verificar el dominio (yo he escogido el método de subida de archivo), vemos esta pantalla:</p>
+<p><img class="aligncenter size-full wp-image-252" title="pic4" src="{{site.baseurl}}/uploads/2010/11/pic4.png" alt="" width="705" height="129" /><br />
+Aceptamos los términos de licencia y configuramos nuestra aplicación:</p>
+<p><img class="aligncenter size-full wp-image-253" title="pic5" src="{{site.baseurl}}/uploads/2010/11/pic5.png" alt="" width="713" height="564" /></p>
+<p>Y ya tenemos todo lo necesario para empezar.</p>
+<h2>El código</h2>
+<p>El código que presento a continuación está organizado en funciones, siendo el embrión para crear una clase GoogleOAuth.</p>
+<p>1. La primera clase que incluiría en la jerarquía sería una abstracta que define el OAuthService, que básicamente contiene la configuración. En mi caso usaré un array encapsulado en una función:</p>
+<pre name='code' class='php'>
+function getService()
+{
+$service = array();
+$service["baseUrl"] = "https://www.google.com";
+$service["CONSUMER_KEY"] = "www.becodemyfriend.com";
+$service["CONSUMER_SECRET"] = "2jtUKqB4ZXnuj/waTgo2XUc3";
+$service["requestTokenUrl"] = $service["baseUrl"]."/accounts/OAuthGetRequestToken";
+$service["authorizationUrl"] = $service["baseUrl"]."/accounts/OAuthAuthorizeToken";
+$service["accessTokenUrl"] = $service["baseUrl"]."/accounts/OAuthGetAccessToken";
+$service["scope"] = $service["baseUrl"]."/m8/feeds/";
+$service["contactsFeed"] = $service["baseUrl"]."/m8/feeds/contacts/default/property-KEY";
+$service["callback"] = "http://localhost/~txau/Spikes/OAuthGoogle%20with%20PHP/OAuth.php";
+$service["oauth"] = new OAuth($service["CONSUMER_KEY"], $service["CONSUMER_SECRET"]);
+
+return $service;
+}
+</pre>
+<p>Poder utilizar localhost como callback nos evita muchas complicaciones.</p>
+<p>2. El primer paso en toda comunicación OAuth es solicitar un Request Token:</p>
+<pre name='code' class='php'>
+function requestToken()
+{
+$service = getService();
+
+$params = array();
+$params["scope"] = $service["scope"];
+$params["oauth_callback"] = $service["callback"];
+
+$response = parseResponse(sendRequest($service["requestTokenUrl"], $params));
+
+if(isset($response["oauth_token"]))
+{
+$authorizationUrl = $service["authorizationUrl"]."?oauth_token=".$response['oauth_token'];
+echo "&lt;a href='$authorizationUrl'&gt;Follow this auth link... Grant me access to all your dirty secrets!&lt;/a&gt;";
+$_SESSION["oauth_token_secret"] =  rawurldecode($response['oauth_token_secret']);
+$_SESSION["oauth_token"] = rawurldecode($response['oauth_token']);
+}
+}
+</pre>
+<p>Como vemos almaceno el resultado en la sesión de usuario. Estos tokens son temporales y los intercambiaremos inmediatamente por un Access Token permanente. Cada uno que lo almacene donde lo tenga que almacenar =) Para facilitarme la vida, he creado la función parseResponse para convertir el string resultante en un array de parámetros:</p>
+<pre name='code' class='php'>
+function parseResponse($string)
+{
+$result = array();
+$splitted = explode("&amp;", $string);
+
+foreach($splitted as $onePair)
+{
+$thisParams = explode("=", $onePair);
+$result[$thisParams[0]] = $thisParams[1];
+}
+
+return $result;
+}
+</pre>
+<p>Así mismo me he adelantado un poco a las necesidades (mal hecho), creando una función de apoyo para los requests:</p>
+<pre name='code' class='php'>
+function sendRequest($url, $params = null, $method = "POST")
+{
+$result = null;
+
+$service = getService();
+$oauth = $service["oauth"];
+$oauth-&gt;setToken($_SESSION["oauth_token"], $_SESSION["oauth_token_secret"]);
+
+try
+{
+$oauth-&gt;fetch($url, $params, $method);
+$result = $oauth-&gt;getLastResponse();
+}
+catch(Exception $e)
+{
+print_r($e);
+print_r($oauth-&gt;getLastResponseInfo());
+}
+
+return $result;
+}
+</pre>
+<p>La clase OAuth de PHP incuye un método OAuth::getRequestToken, el problema es que no soporta parámetros adicionales, y Google nos exige enviar siempre un scope. Por eso uso la función OAuth::fetch.</p>
+<p>Así que por ahora, para hacer funcionar nuestro script tenemos algo así:</p>
+<pre name='code' class='php'>
+$session = session_start();
+
+$gotRequestToken = (!empty($_SESSION["oauth_token"]));
+if(!$gotRequestToken)
+
+{
+
+requestToken();
+
+die();
+
+}
+</pre>
+<p>Y este es el output:<br />
+<img class="aligncenter size-full wp-image-255" title="Screen shot 2010-11-10 at 11.34.39 AM" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-10-at-11.34.39-AM.png" alt="" width="430" height="36" /></a></p>
+<p>2. Seguimos el enlace y autorizamos la aplicación:</p>
+<p><img class="aligncenter size-full wp-image-256" title="Screen shot 2010-11-10 at 11.35.33 AM" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-10-at-11.35.33-AM.png" alt="" width="696" height="370" /></p>
+<p>Lo cual nos devolverá a nuestra Callback URL, pasándonos como parámetro GET un oauth_verifier que utilizaremos para persistir nuestra autorización, realizando un request AccessToken. En este caso, debemos utilizar el método OAuth::getAccessToken:</p>
+<pre name='code' class='php'>
+function accessToken()
+{
+$service = getService();
+
+try
+{
+$oauth = $service["oauth"];
+$oauth-&gt;setToken($_SESSION["oauth_token"], $_SESSION["oauth_token_secret"]);
+$accessTokenInfo = ($oauth-&gt;getAccessToken($service["accessTokenUrl"], null, $_GET["oauth_verifier"]));
+
+$_SESSION["oauth_token_secret"] = $accessTokenInfo["oauth_token_secret"];
+$_SESSION["oauth_token"] = $accessTokenInfo['oauth_token'];
+$_SESSION["persistentUser"] = true;
+
+$oauth-&gt;setToken($_SESSION["oauth_token"], $_SESSION["oauth_token_secret"]);
+}
+catch(Exception $e)
+{
+print_r($e);
+print_r($oauth-&gt;getLastResponse());
+print_r($oauth-&gt;getLastResponseInfo());
+}
+}
+</pre>
+<p>Este nuevo par oauth_token + oauth_token_secret, nos permitirán realizar acciones en nombre del usuario, en el scope autorizado, hasta que el usuario revoque el acceso en sus opciones de cuenta en Google:</p>
+<p><img class="aligncenter size-full wp-image-257" title="Screen shot 2010-11-10 at 11.40.48 AM" src="{{site.baseurl}}/uploads/2010/11/Screen-shot-2010-11-10-at-11.40.48-AM.png" alt="" width="532" height="227" /></p>
+<p>Para lanzar esta parte del script, contamos con este código:</p>
+<pre name='code' class='php'>
+$persistAuthorization = ($gotRequestToken &amp;&amp; empty($_SESSION["persistentUser"]));
+if($persistAuthorization)
+{
+accessToken();
+}
+</pre>
+<p>3. El usuario ya está autenticado en nuestro sistema, para recoger su id (su email) así como para consultar su lista de contactos, utilizaremos métodos similares:</p>
+<pre name='code' class='php'>
+function getContacts()
+{
+$service = getService();
+
+$params = array();
+$params["v"] = "3.0";
+
+$response = sendRequest($service["contactsFeed"], null, "GET");
+
+return $response;
+}
+</pre>
+<p>Según la <a href="http://code.google.com/apis/contacts/docs/3.0/developers_guide_protocol.html" target="_blank">documentación</a>, debemos especificar la versión de la API en nuestro request. La implementación de OAuth de PHP falla al intentar realizar este request por POST, por eso he forzado el método a GET. El resultado de esta operación es un stream xml. No voy a explicar cómo trabajar con XML en este artículo, pero al menos:</p>
+<pre name='code' class='php'>
+function displayContacts($xml)
+{
+$contactList = simplexml_load_string($xml);
+print_r($contactList);
+}
+</pre>
+<p>Y la parte del script que dispara estas funciones:</p>
+<pre name='code' class='php'>
+$contacts = getContacts();
+displayContacts($contacts);
+</pre>
+<p>Eso es todo por ahora =)</p>
+</div>

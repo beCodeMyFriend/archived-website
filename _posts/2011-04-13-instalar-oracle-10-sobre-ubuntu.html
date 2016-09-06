@@ -1,0 +1,68 @@
+---
+layout: post
+status: publish
+published: true
+title: Instalar Oracle 10 sobre Ubuntu
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+excerpt: En este pequeño manual voy a explicar <strong>cómo instalar Oracle 10 en
+  un sistema Linux basándome en una instalación como base de Ubuntu 8.04 Server sin
+  ningún paquete opcional</strong>. Tan solo la instalación mínima de Ubuntu y, sobre
+  ella, comienzo a explicar los pasos no sólo para instalar Oracle, sino también para
+  poder tener acceso a su administrador remotamente. Ya que, por defecto, Oracle no
+  da esta opción y la administración web sólo es posible desde 127.0.0.1.
+wordpress_id: 953
+wordpress_url: http://www.becodemyfriend.com/?p=533
+date: '2011-04-13 15:08:49 +0000'
+date_gmt: '2011-04-13 14:08:49 +0000'
+categories:
+- Programación
+tags:
+- Manuales
+- Open Source
+- Programación
+---
+<p>En este pequeño manual voy a explicar <strong>cómo instalar Oracle 10 en un sistema Linux basándome en una instalación como base de Ubuntu 8.04 Server sin ningún paquete opcional</strong>. Tan solo la instalación mínima de Ubuntu y, sobre ella, comienzo a explicar los pasos no sólo para instalar Oracle, sino también para poder tener acceso a su administrador remotamente. Ya que, por defecto, Oracle no da esta opción y la administración web sólo es posible desde 127.0.0.1.<a id="more"></a><a id="more-953"></a></p>
+<h3>Paso 1. Adquirir la clave pública:</h3>
+<pre class="java" name="code">wget http://oss.oracle.com/el4/RPM-GPG-KEY-oracle -O- | sudo apt-key add ñ</pre>
+<h3>Paso 2. Modificar fuente de datos del apt nano ñw:</h3>
+<pre class="java" name="code">/etc/apt/sources.list.</pre>
+<p>Y añadimos al final del fichero: deb http://oss.oracle.com/debian unstable main non-free.</p>
+<h3>Paso 3. Actualizar nuestro repositorio:</h3>
+<pre class="java" name="code">apt-get update.</pre>
+<h3>Paso 4. Instalar paquete Oracle:</h3>
+<pre class="java" name="code">apt-get install oracle-xe.</pre>
+<h3>Paso 5. Configurarlo:</h3>
+<pre class="java" name="code">/etc/init.d/oracle-xe configure. Debiendo tener una salida como esta:</pre>
+<p>Oracle Database 10g Express Edition Configuration.</p>
+<p>-------------------------------------------------</p>
+<p>This will configure on-boot properties of Oracle Database 10g Express Edition. The following questions will determine whether the database should be starting upon system boot, the ports it will use, and the passwords that will be used for database accounts. Press  to accept the defaults.</p>
+<p>Ctrl-C will abort.</p>
+<p>Punto en el cual nos piden que especifiquemos el puerto sobre el cual se instalará el administrador web, que por defecto está en el 8080:</p>
+<p>Specify the HTTP port that will be used for Oracle Application Express [8080]:</p>
+<p>Aquí nos piden el password de SYSTEM y SYS:</p>
+<p>Specify a password to be used for database accounts. Note that the same password will be used for SYS and SYSTEM. Oracle recommends the use of different passwords for each database account. This can be done after initial configuration:</p>
+<p>Confirm the password:</p>
+<p>Punto en el cual nos piden que indiquemos si queremos iniciar el servicio de Oracle en boot, por defecto y (yes - sí):</p>
+<p>Do you want Oracle Database 10g Express Edition to be started on boot (y/n) [y]:</p>
+<p>Una vez completados todos estos pasos veremos lo siguiente:</p>
+<p>Starting Oracle Net Listener...Done</p>
+<p>Configuring Database...Done</p>
+<p>Starting Oracle Database 10g Express Edition Instance...Done</p>
+<p>Installation Completed Successfully.</p>
+<p>To access the Database Home Page go to "http://127.0.0.1:8888/apex"</p>
+<p>Lo cual quiere decir que ya tenemos nuestro oracle instalado, configurado y listo para usar. Pero sólo administrable desde la URL que se nos indica.</p>
+<p>http://127.0.0.1:8888/apex</p>
+<h3>Paso 6. Habilitar el acceso remoto a la administracion:</h3>
+<pre class="java" name="code">cd /usr/lib/oracle/xe/app/oracle/product/10.2.0/server/bin./sqlplus</pre>
+<p>SYSTEM/XXXXX@XE. Donde las XXXXX representan el password que antes hemos indicado en la configuración de Oracle.</p>
+<p>Una vez introducida esa orden nos aparecer al prompt de la consola SQL:</p>
+<p>SQL*Plus: Release 10.2.0.1.0 - Production on Tue Nov 30 22:43:51 2010</p>
+<p>Copyright (c) 1982, 2005, Oracle. All rights reserved.</p>
+<p>Connected to: Oracle Database 10g Express Edition Release 10.2.0.1.0 - Production SQL&gt;</p>
+<p>En la cual introduciremos la siguiente orden:%</p>

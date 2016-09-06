@@ -1,0 +1,35 @@
+---
+layout: post
+status: publish
+published: true
+title: Instalación de la extensión PHP OAuth en Mac OS X 10.6 Snow Leopard
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+wordpress_id: 234
+wordpress_url: http://www.becodemyfriend.com/?p=234
+date: '2010-11-09 20:39:48 +0000'
+date_gmt: '2010-11-09 19:39:48 +0000'
+categories:
+- Programación
+tags:
+- OAuth
+- PHP
+- Programación
+- Mac
+---
+<p>Esto no es más que un mini-tutorial para que otros eviten perder la media hora (o más) que yo he perdido intentando hacer funcionar esto. No sé si es cosa de mi configuración actual o de la configuración por defecto de Snow Leopard, pero he aquí mi problema. </p>
+<p>Al instalar el módulo usando PECL con:</p>
+<p>> sudo pecl install oauth</p>
+<p>Y reiniciar el servidor Apache:</p>
+<p>> sudo apachectl restart</p>
+<p>Apache no carga la extensión. Tras revisar el error_log vemos que:</p>
+<p>PHP Warning:  PHP Startup: Unable to load dynamic library '/usr/lib/php/extensions/no-debug-non-zts-20090626/oauth.so' - dlopen(/usr/lib/php/extensions/no-debug-non-zts-20090626/oauth.so, 9): image not found in Unknown on line 0</p>
+<p>Resulta que lo instala en un directorio distinto al que apache busca las extensiones PHP. Por tanto copiamos de uno al otro (en mi caso):</p>
+<p>> sudo cp /opt/local/lib/php/extensions/no-debug-non-zts-20090626/oauth.so /usr/lib/php/extensions/no-debug-non-zts-20090626/<br />
+> sudo apachectl restart</p>
+<p>Podemos comprobar que la extensión está cargada lanzando un phpinfo().</p>

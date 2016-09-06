@@ -1,0 +1,133 @@
+---
+layout: post
+status: publish
+published: true
+title: Firewall genérico para VPS Linux
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2183
+wordpress_url: http://www.becodemyfriend.com/?p=2183
+date: '2011-10-18 16:43:49 +0000'
+date_gmt: '2011-10-18 15:43:49 +0000'
+categories:
+- Programación
+tags:
+- Sistemas
+- Linux
+---
+<p>Cuando se confecciona un <strong>firewall para VPS</strong> hay que tener ciertas consideraciones. Por ejemplo, las restricciones del mismo sistema para poder acceder a los devices en una VPS. Por eso, buscando y recopilando, os dejo un <strong>firewall genérico para VPS</strong> que más o menos se ajusta a casi cualquier ( por no decir cualquier ) sistema Linux.</p>
+<pre class="java" name="code">#!/bin/bash
+
+BADIPS="$(cat /root/allbadips.txt|grep -v -E "^#")"
+iface='venet0:0'
+ip=`ifconfig $iface|grep "inet "|cut -f 2 -d :| awk '{print $1}'`
+
+# default filter policy DROP ALL
+iptables -P INPUT DROP
+iptables -P OUTPUT DROP
+iptables -P FORWARD DROP
+
+# allow unlinited traffic
+iptables -A INPUT -i venet0 -s 127.0.0.1 -j ACCEPT
+iptables -A OUTPUT -o venet0 -d 127.0.0.1 -j ACCEPT
+iptables -A INPUT -i lo -s 127.0.0.1 -j ACCEPT
+iptables -A OUTPUT -o lo -d 127.0.0.1 -j ACCEPT
+
+# BANNED IPS
+for ip in $BADIPS
+do
+iptables -A INPUT -s $ip -j DROP
+iptables -A OUTPUT -d $ip -j DROP
+done
+
+# stopping flood
+iptables -N flood
+iptables -A INPUT -p tcp --syn -j flood
+iptables -A flood -m limit --limit 1/s --limit-burst 3 -j RETURN
+iptables -A flood -j DROP
+
+# drop all incoming fragments
+iptables -A INPUT -f -j DROP
+
+# drop all incoming malformed XMAS packets
+iptables -A INPUT -p tcp --tcp-flags ALL ALL -j DROP
+
+# drop all incoming malformed NULL packets
+iptables -A INPUT -p tcp --tcp-flags ALL NONE -j DROP
+
+# bad incoming source ip address 0.0.0.0/8
+iptables -A INPUT -s 0.0.0.0/8 -j DROP
+
+# Bad incoming source ip address 127.0.0.0/8
+iptables -A INPUT -s 127.0.0.0/8 -j DROP
+
+# Bad incoming source ip address 10.0.0.0/8
+iptables -A INPUT -s 10.0.0.0/8 -j DROP
+
+# port 80
+iptables -A INPUT -p tcp -s 0/0 --sport 1024:65535 -d $ip --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp -s $ip --sport 80 -d 0/0 --dport 1024:65535 -j ACCEPT
+
+# port 443
+iptables -A INPUT -p tcp -s 0/0 --sport 1024:65535 -d $ip --dport 443 -j ACCEPT
+iptables -A OUTPUT -p tcp -s $ip --sport 443 -d 0/0 --dport 1024:65535 -j ACCEPT
+
+# port 25
+#iptables -A INPUT -p tcp -s 0/0 --sport 1024:65535 -d $ip --dport 25 -j ACCEPT
+#iptables -A OUTPUT -p tcp -s $ip --sport 25 -d 0/0 --dport 1024:65535 -j ACCEPT
+
+# port 22 for all
+#ip="xxx.xxx.xxx.xxx"
+iptables -A INPUT -p tcp -s 0/0 --sport 513:65535 -d $ip --dport 22 -j ACCEPT
+iptables -A OUTPUT -p tcp -s $ip --sport 22 -d 0/0 --dport 513:65535 -j ACCEPT
+
+# Outgoing DNS
+# udp first
+NSIP="8.8.8.8 8.8.4.4" # NS1 NS2 of ISP
+for mip in $NSIP
+do
+iptables -A OUTPUT -p udp -s $ip --sport 1024:65535 -d $mip --dport 53 -j ACCEPT
+iptables -A INPUT -p udp -s $mip --sport 53 -d $ip --dport 1024:65535 -j ACCEPT
+# tcp next
+iptables -A OUTPUT -p tcp -s $ip --sport 1024:65535 -d $mip --dport 53 -j ACCEPT
+iptables -A INPUT -p tcp -s $mip --sport 53 -d $ip --dport 1024:65535 -j ACCEPT
+done
+
+#outgoin ICMP
+iptables -A OUTPUT -p icmp -s $ip -d 0/0 -j ACCEPT
+iptables -A INPUT -p icmp -s 0/0 -d $ip -j ACCEPT
+
+#outgoing traceroute
+iptables -A OUTPUT -p udp -s $ip --sport 1024:65535 -d 0/0 --dport 33434:33523 -j ACCEPT
+
+#outgoing SMTP
+iptables -A OUTPUT -p tcp -s $ip --sport 1024:65535 -d 0/0 --dport 25 -j ACCEPT
+iptables -A INPUT -p tcp -s 0/0 --sport 25 -d $ip --dport 1024:65535 -j ACCEPT
+
+#outgoing FTP
+iptables -A OUTPUT -p tcp -s $ip --sport 1024:65535 -d 0/0 --dport 21 -j ACCEPT
+iptables -A INPUT -p tcp -s 0/0 --sport 21 -d $ip --dport 1024:65535 -j ACCEPT
+iptables -A OUTPUT -p tcp -s $ip --sport 1024:65535 -d 0/0 --dport 1024:65535 -j ACCEPT
+iptables -A INPUT -p tcp -s 0/0 --sport 1024:65535 -d $ip --dport 1024:65535 -j ACCEPT
+
+#outgoin SSH
+iptables -A OUTPUT -p tcp -s $ip --sport 513:65535 -d 0/0 --dport 22 -j ACCEPT
+iptables -A INPUT -p tcp -s 0/0 --sport 22 -d $ip --dport 513:65535 -j ACCEPT
+
+# outgoin http and https
+iptables -A OUTPUT -p tcp -s $ip --sport 1024:65535 -d 0/0 --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp -s 0/0 --sport 80 -d $ip --dport 1024:65535 -j ACCEPT
+iptables -A OUTPUT -p tcp -s $ip --sport 1024:65535 -d 0/0 --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp -s 0/0 --sport 443 -d $ip --dport 1024:65535 -j ACCEPT
+# Okay Drop everything from here :D
+iptables -A INPUT -s 0/0 -j DROP
+iptables -A OUTPUT -d 0/0 -j DROP</pre>
+<h3>Entradas similares:</h3>
+<p><a title="CDN transparente oculto con mod_proxy y rewrite en Apache" href="http://www.becodemyfriend.com/2011/10/cdn-transparente-oculto-con-mod_proxy-y-rewrite-en-apache/" target="_blank">CDN transparente oculto con mod_proxy y rewrite en Apache.</a></p>
+<p><a title="Quitar mongod.lock en Apache" href="http://www.becodemyfriend.com/2011/09/quitar-mongod-lock-en-ubuntu/" target="_blank">Quitar mongod.lock en Apache</a></p>
+<p><a title="Uso del mod:proxy de Apache para subdominios" href="http://www.becodemyfriend.com/2011/09/uso-del-mod_proxy-de-apache-para-subdominios/" target="_blank">Uso del mod_proxy de Apache para subdominios</a></p>

@@ -1,0 +1,55 @@
+---
+layout: post
+status: publish
+published: true
+title: Instalación y configuración de un servidor FTP con Ubuntu 10.04 (FIXTURE SERVER)
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2455
+wordpress_url: http://www.becodemyfriend.com/?p=2455
+date: '2011-11-15 11:06:12 +0000'
+date_gmt: '2011-11-15 10:06:12 +0000'
+categories:
+- Programación
+tags:
+- Sistemas
+- Linux
+---
+<h3>1. Instalación del cliente FTP</h3>
+<pre class="java" name="code">apt-get install ncftp</pre>
+<h3>2. Instalación servidor FTP</h3>
+<pre class="java" name="code">apt-get install pure-ftpd</pre>
+<h3>3. Configuración del servidor de FTP</h3>
+<p>Todos los parámetros de configuración del servidor FTP están ubicados en el directorio:</p>
+<pre class="java" name="code">/etc/pure-ftpd/conf/</pre>
+<p>Donde cada uno de los ficheros es una opción de configuración.</p>
+<p>Activación chroot:</p>
+<pre class="java" name="code">echo yes &gt; ChrootEveryone</pre>
+<p>Número de conexiones:</p>
+<pre class="java" name="code">echo 50 &gt; MaxClientsNumber</pre>
+<p>Desactivamos la autenticación UNIX PAM</p>
+<pre class="java" name="code">echo no &gt; PAMAuthentication
+echo no &gt; UnixAuthentication</pre>
+<p>Activamos la autenticación por fichero pbd</p>
+<pre class="java" name="code">echo /etc/pure-ftpd/pureftpd.pdb &gt; PureDB
+ln -s /etc/pure-ftpd/conf/PureDB ../auth/50pure</pre>
+<p>Creación de la base de datos de usuarios</p>
+<pre class="java" name="code">pure-pw mkdb</pre>
+<p>Creación de usuario y grupo de acceso FTP</p>
+<pre class="java" name="code">groupadd -g 2001 ftpgroup
+useradd -u 2001 -s /bin/false -d /dev/null -c "pureftpd user" -g ftpgroup ftpuser</pre>
+<p>Creación del directorio FTP</p>
+<pre class="java" name="code">mkdir -p /var/ftp/public/
+chown ftpuser:ftpgroup /var/ftp/public/</pre>
+<p>Creación de usuario virtual de pruebas</p>
+<pre class="java" name="code">pure-pw useradd ftpuser -u ftpuser -d /var/ftp/public/</pre>
+<p>Actualizamos la base de datos de usuarios</p>
+<pre class="java" name="code">pure-pw mkdb</pre>
+<h3>Entradas similares:</h3>
+<p><a title="Tag Sistemas" href="http://www.becodemyfriend.com/tag/sistemas" target="_blank">Tag: Sistemas</a></p>
+<p><a title="Tag Linux" href="http://www.becodemyfriend.com/tag/linux" target="_blank">Tag: Linux</a></p>

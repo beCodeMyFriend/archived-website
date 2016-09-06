@@ -1,0 +1,31 @@
+---
+layout: post
+status: publish
+published: true
+title: Quitar mongod.lock en Ubuntu
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2180
+wordpress_url: http://www.becodemyfriend.com/?p=2180
+date: '2011-09-26 10:57:34 +0000'
+date_gmt: '2011-09-26 09:57:34 +0000'
+categories:
+- Programación
+tags:
+- Sistemas
+- Linux
+---
+<p>Un problema que tiene <a title="MongoDB" href="http://www.mongodb.org/" target="_blank">MongoDB</a> es que, si por cualquier razón, el servicio no borra limpiamente su fichero “lock”, ya no puede volverse a levantar. Con los problemas que eso pueda ocasionar en nuestro entorno.</p>
+<p>Una solución para distribuciones Ubuntu será editar el fichero:</p>
+<pre class="java" name="code">sudo nano /etc/init/mongodb.conf</pre>
+<p>Y al final del bloque:</p>
+<pre class="java" name="code">pre-startup</pre>
+<p>añadir la siguiente linea:</p>
+<pre class="java" name="code">if [ -f /var/lib/mongodb/mongod.lock ]; then rm -f /var/lib/mongodb/mongod.lock; fi</pre>
+<p>Con esto conseguimos que, antes de iniciar el servicio, compruebe que no exista el fichero “lock” y, en caso de existir, eliminarlo.</p>
+<p>Para distribuciones basadas en <a title="Redhat" href="http://www.mongodb.org/" target="_blank">Redhat</a> o cualquier otra, bastará con localizar un sitio apropiado para poner la misma línea y, en todo caso, localizar la ruta correcta del fichero “lock”.</p>

@@ -1,0 +1,39 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Perl warning: Falling back to the standard locale (“C”)'
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2259
+wordpress_url: http://www.becodemyfriend.com/?p=2259
+date: '2011-11-02 10:28:58 +0000'
+date_gmt: '2011-11-02 09:28:58 +0000'
+categories:
+- Programación
+tags:
+- Sistemas
+- Linux
+---
+<p>Problema:</p>
+<pre class="java" name="code">perl: warning: Falling back to the standard locale ("C").
+locale: Cannot set LC_CTYPE to default locale: No such file or directory
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory
+locale: Cannot set LC_ALL to default locale: No such file or directory</pre>
+<p>Solución:</p>
+<pre class="java" name="code">export LANGUAGE=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+locale-gen en_US.UTF-8
+dpkg-reconfigure locales</pre>
+<p>Esta solución funciona en todos los sistemas a excepción de la ultima línea, la cual es exclusiva de sistemas Debian.</p>
+<h3>Entradas similares:</h3>
+<p><a title="Firewall genérico para VPS Linux" href="http://www.becodemyfriend.com/2011/10/firewall-generico-para-vps-linux/" target="_blank">Firewall genérico para VPS Linux</a></p>
+<p><a title="Manual de instalación y configuración de Cacti - Monitoring parte I" href="http://www.becodemyfriend.com/2011/01/manual-de-instalacion-y-configuracion-de-cacti-monitoring-parte-i/" target="_blank">Manual de instalación y configuración de Cacti - Monitoring parte I</a></p>
+<p><a title="Manual de instalación y configuración de Nagios 3 - Monitoring parte II" href="http://www.becodemyfriend.com/2011/04/manual-de-instalacion-y-configuracion-de-nagios-3-monitoring-parte-ii/" target="_blank">Manual de instalación y configuración de Nagios 3 - Monitoring parte II</a></p>
+<p><a title="beCode author markitos" href="http://www.becodemyfriend.com/author/markitos" target="_blank">Autor: markitos</a></p>

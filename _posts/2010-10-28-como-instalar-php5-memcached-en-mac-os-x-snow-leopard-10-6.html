@@ -1,0 +1,67 @@
+---
+layout: post
+status: publish
+published: true
+title: Cómo instalar php5-memcached en Mac OS X Snow Leopard (10.6)
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+wordpress_id: 204
+wordpress_url: http://www.becodemyfriend.com/?p=204
+date: '2010-10-28 17:12:31 +0000'
+date_gmt: '2010-10-28 16:12:31 +0000'
+categories:
+- Programación
+tags:
+- Manuales
+- PHP
+- Programación
+- Mac
+---
+<div>1. Instala <strong>MacPorts</strong> si no está ya instalado desde <a href="http://www.macports.org/">http://www.macports.org/</a>. Para poder instalar MacPorts necesitas tener las <strong>XCode Tools</strong> previamente instaladas.</p>
+<p>Abre un terminal</p>
+<p>2. Instala <strong>memcached</strong>:</p>
+<p>&gt; sudo port install memcached</p>
+<p>3. Instala el módulo <strong>php5-memcache</strong>:</p>
+<p>&gt; sudo port install php5-memcache</p>
+<p>MacPorts descarga y compila el código fuente de memcahe y todas sus dependencias, este proceso puede tardar unos minutos en completarse. Cuando la instalación está completa, necesitamos configurar nuestro php para que use memcache.</p>
+<p>4. Ve al directorio /etc:</p>
+<p>&gt; cd /etc</p>
+<p>Si tienes una instalación apache-php-mysql por defecto, necesitarás alguna configuración adicional en tu archivo <strong>php.ini</strong>, ya que el archivo php.ini reemplazará la configuración por defecto de php. Si ya dispones de un archivo php.ini funcionando puedes saltar al paso 9, de lo contrario prosigue con el paso 5:</p>
+<p>5. Haz una copia del archivo de php.ini de ejemplo:</p>
+<p>&gt; sudo cp php.ini.default php.ini</p>
+<p>6. Edita el archivo php.ini recién creado con tu editor shell preferido, localiza la línea "short_open_tag = Off" y reemplazala con "<strong>short_open_tag = On</strong>". Este paso es opcional.</p>
+<p>7. Localiza la línea "mysql.default_socket = /var/mysql/mysql.sock" y sustitúyela por "<strong>mysql.default_socket = /tmp/mysql.sock</strong>".</p>
+<p>8. Es recomendable configurar nuestra timezone. Localiza la línea ";date.timezone =" y cámbiala por "<strong>date.timezone = Europe/Madrid</strong>". Comprueba cuál es tu timezone en <a href="http://www.php.net/manual/en/timezones.php">http://www.php.net/manual/en/timezones.php</a>. Esto nos evitará algunos mensajes molestos.</p>
+<p>9. Localiza la línea ";extension=php_zip.dll" en php.ini y añade una nueva línea a continuación con "<strong>extension=memcache.so</strong>".</p>
+<p>10. Guarda tu archivo php.ini y vuelve a la shell.</p>
+<p>11. Copia <strong>memcache.so</strong> desde /opt/local/lib/php/extensions/(extension dir)/memcache.so a /usr/lib/php/extensions/(extension dir.)/memcache.so. Sustituye (extension dir.) por tu directorio de extensiones. En mi caso:</p>
+<p>&gt; sudo cp /opt/local/lib/php/extensions/no-debug-non-zts-20090626/memcache.so /usr/lib/php/extensions/no-debug-non-zts-20090626/</p>
+<p>12. Reinicia el servidor <strong>apache</strong>:</p>
+<p>&gt; sudo apachectl restart</p>
+<p>13. Inicia el daemon para comprobar que todo funciona correctamente:</p>
+<p>&gt; memcached -d -m 24 -p 11211</p>
+<p>Donde -m es la cantidad de RAM en MB y -p es el puerto de red.</p>
+<p>14. Haz una conexión telnet para comprobar que el daemon está cargado y funcionando:</p>
+<p>&gt; telnet localhost 11211</p>
+<p>16. Puedes comprobar tu configuración en php con este sencillo script:</p>
+<pre name="code" class="php">
+&lt;?
+$memcache = new Memcache();
+$memcache-&gt;addServer("localhost");
+$memcache-&gt;set("testing key", "testing value");
+$return = $memcache-&gt;get("testing key");
+if($return == "testing value") echo "Hemos terminado =)";
+?&gt;
+</pre>
+<p>16. Y efectivamente hemos terminado. Opcionalmente podemos usar MacPorts de nuevo para que memcached se inicie automáticamente en el arraque:</p>
+<p>&gt; sudo port load memcached</p>
+<p>17. Recuerda, memcached reserva la memoria que va a utilizar (en el ejemplo 24mb), si estás utilizando tu máquina para otras actividades a parte del desarrollo de software, tal vez quieras tumbar memcached para liberar un poco de RAM extra:</p>
+<p>&gt; sudo port unload memcached</p>
+<p>nota: siendo 27 de Octubre de 2010, la instalación de MacPorts de memcache falla en su dependencia con db46. Si estás teniendo este problema, aquí está la solución (en inglés):</p>
+<p><a href="http://trac.macports.org/ticket/26939" target="_blank">http://trac.macports.org/ticket/26939</a></p>
+</div>

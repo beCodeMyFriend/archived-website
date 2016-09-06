@@ -1,0 +1,194 @@
+body{
+	font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+    font-size: 2.4em;
+    letter-spacing:-1px;
+}
+a{
+	color: #2E6EB0;
+}
+
+header,
+.smalltitle,
+.bigtitle,
+.corevalue,
+.name {
+	font-family: 'Nixie One', cursive;
+}
+
+.smalltitle{
+    display: none;
+}
+
+
+.bigtitle{
+    display: block;
+}
+
+section{
+    margin:0px;
+    padding: 0px;
+    padding-top:40px;
+    width:100%;
+    float:left;
+}
+
+nav {
+    display: none;
+}
+
+section h1,
+article header{
+    text-shadow:0.01em 0.01em 0.01em #f0f0f0;
+}
+
+
+
+.sectionheader{
+    font-size: 1.3em;
+	font-weight: bold;
+}
+
+.black{
+    color:#fff;
+    background:#141414;
+}
+.white{
+    color:#000;
+    background:#fff;
+}
+
+.white .sectionheader{
+	text-shadow:0.01em 0.01em 0.01em #0f0f0f;
+}
+
+.black .sectionheader{
+	text-shadow:0.01em 0.01em 0.01em #f0f0f0;
+}
+
+.corevalues {
+	margin-top: 5%;
+}
+.corevalue {
+	text-shadow:0.01em 0.01em 0.01em #f0f0f0;
+}
+
+.project {
+	max-width: 300px;
+	position: relative;
+}
+
+.project figcaption{
+	margin-top: 10px;
+	background-color: #C5D381;
+	padding: 10px;
+	min-height: 60px;
+}
+
+.projectimg:hover img{
+	opacity: 0.2;
+}
+
+.project .button {
+	display: none;
+	left: 25%;
+    position: absolute;
+    top: 35%;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background-color:  #0f0f0f;
+}
+
+.button p{
+	margin: 0%;
+	padding: 0.1em 0.2em;
+	color:  #F0F0F0;
+	font-family: arial,sans-serif;
+	font-size: 0.6em;
+}
+
+.button a{
+	text-decoration: none;
+}
+
+.projectimg:hover .button{
+	display: block;
+}
+
+.section-content {
+	margin:0 80px;
+}
+
+#team .photo{
+	height:150px;
+	background-color: white;
+	border: 2px solid #F0F0F0;
+}
+
+#team .social-icon {
+	height:40px;
+	padding:10px 0px;
+}
+
+#team .name {
+	display: block;
+} 
+
+.member {
+	clear:both;
+	min-height: 190px;
+	height:450px;
+}
+
+.tag {
+	background-color:  #EBEBEB;
+	color:  #0F0F0F;
+	padding: 0px 6px;
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	white-space:nowrap;
+	font-family: arial,sans-serif;
+}
+
+.font-medium, 
+.post-summary,
+.tag{
+
+    font-size: 0.6em;
+}
+
+.tags {
+	line-height:0.8em;
+}   
+    
+.post-title{
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top:5px;
+}
+
+.bloglink{
+	-webkit-border-radius: 6px;
+	border-radius: 6px;
+	background-color:  #EBEBEB;
+	padding: 5px 10px;
+}
+
+
+.contributions
+{
+	margin: 0;
+	margin-left:20px;
+	padding: 0;
+	width:300px;
+}
+
+.contributions li {
+	list-style-type:none;
+	max-width: 250px;
+	text-align:center;
+}
+
+#greetings {
+	float:right;
+}
+

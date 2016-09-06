@@ -1,0 +1,72 @@
+---
+layout: post
+status: publish
+published: true
+title: Instalación de la última versión de MySQL desde los binarios oficiales
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2462
+wordpress_url: http://www.becodemyfriend.com/?p=2462
+date: '2011-12-13 16:09:11 +0000'
+date_gmt: '2011-12-13 15:09:11 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Sistemas
+- Linux
+---
+<p>Estos pasos están indicados para aquellas situaciones que requieran de la última versión de MySQL que no esté soportada por su gestor de paquetes como última versión estable en tu Linux. Teniendo que recurrir a la pagina oficial de MySQL e instalar de forma manual desde la última versión disponible.</p>
+<h3>1. Descargamos binarios de MySQL y lo instalamos</h3>
+<pre class="java" name="code">cd /tmp/
+wget -O mysql.tgz http://dev.mysql.com/get/Downloads/MySQL-5.5/mysql-5.5.16-linux2.6-i686.tar.gz/from/http://mysql.mirrors.hoobly.com/
+tar xvfz mysql.tgz
+mv mysql-5.5.16-linux2.6-i686/ /usr/local/mysql</pre>
+<h3>2. Poner MySQL en el path del sistema</h3>
+<p>editamos el fichero:</p>
+<pre class="java" name="code">nano -w /etc/profile</pre>
+<p>añadimos al final la siguiente línea</p>
+<pre class="java" name="code">export PATH=${PATH}:/usr/local/mysql/bin/</pre>
+<p>y ejecutamos</p>
+<pre class="java" name="code">source /etc/profile</pre>
+<h3>3. Creamos usuario y grupo de sistema para MySQL</h3>
+<pre class="java" name="code">groupadd mysql
+useradd -g mysql mysql</pre>
+<h3>4. Configuramos directorios de MySQL</h3>
+<pre class="java" name="code">mkdir /var/run/mysqld
+chown -R mysql:mysql /var/run/mysqld</pre>
+<h3>5. Copiamos configuración básica de MySQL</h3>
+<pre class="java" name="code">cd /usr/local/mysql/support-files/
+cp my-large.cnf  /etc/my.cnf</pre>
+<h3>6. Hacemos que inicie MySQL al arrancar</h3>
+<pre class="java" name="code">cd /usr/local/mysql/support-files/
+cp mysql.server /etc/init.d/mysql
+chmod 775 /etc/init.d/mysql
+update-rc.d mysql defaults</pre>
+<h3>7. Instalamos base de datos MySQL y acceso root (cambiar xxxxxx por tu clave de root de MySQL)</h3>
+<pre class="java" name="code">apt-get install libaio1
+cd /usr/local/mysql
+chown -R mysql:mysql data
+./scripts/mysql_install_db --user=mysql --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data
+mysqld_safe --user=mysql &amp;
+mysqladmin -u root password 'xxxxxxxxxxxxxxxxxx'</pre>
+<h3>8. Ponemos las librerías de MySQL client dentro del sistema</h3>
+<p>Creamos el fichero</p>
+<pre class="java" name="code">nano -w /etc/ld.so.conf.d/mysql.conf</pre>
+<p>con el siguiente contenido</p>
+<pre class="java" name="code"># libc default configuration
+/usr/local/mysql/lib</pre>
+<p>y lo ejecutamos:</p>
+<pre class="java" name="code">ldconfig -v | grep mysql</pre>
+<p>viendo una salida parecida a esto:</p>
+<pre class="java" name="code">/usr/local/mysql/lib:
+	libmysqlclient.so.18 -&gt; libmysqlclient_r.so.18.0.0</pre>
+<h3>Entradas Similares:</h3>
+<p><a title="Instalación y configuración de servidor de integración contínua con soporte PHP" href="http://www.becodemyfriend.com/2011/11/instalacion-y-configuracion-de-servidor-de-integracion-continua-con-soporte-php/" target="_blank">Instalación y configuración de servidor de integración contínua con soporte PHP</a><br />
+<a title="Quitar mongod.lock en Ubuntu" href="http://www.becodemyfriend.com/2011/09/quitar-mongod-lock-en-ubuntu/" target="_blank">Quitar mongod.lock en Ubuntu</a><br />
+<a title="Instalación y configuración de un servidor FTP con Ubuntu 10.04 (FIXTURE SERVER)" href="http://www.becodemyfriend.com/2011/11/instalacion-y-configuracion-de-un-servidor-ftp-con-ubuntu-10-04-fixture-server/" target="_blank">Instalación y configuración de un servidor FTP con Ubuntu 10.04 (FIXTURE SERVER)</a></p>

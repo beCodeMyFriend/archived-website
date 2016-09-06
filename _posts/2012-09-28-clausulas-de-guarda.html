@@ -1,0 +1,34 @@
+---
+layout: post
+status: publish
+published: true
+title: Cláusulas de guarda
+author:
+  display_name: Miguel Angel
+  login: Miguel Angel
+  email: mike@becodemyfriend.com
+  url: http://www.becodemyfriend.com
+author_login: Miguel Angel
+author_email: mike@becodemyfriend.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 3469
+wordpress_url: http://www.becodemyfriend.com/?p=3469
+date: '2012-09-28 11:44:25 +0000'
+date_gmt: '2012-09-28 10:44:25 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Artesanía del software
+---
+<p>Sólo con buscar un poco en cualquier proyecto al azar en github, encontramos código como este.</p>
+<p><a href="{{site.baseurl}}/uploads/2012/08/guardClause1.png"><img class="aligncenter size-full wp-image-3196" title="guardClause1" src="{{site.baseurl}}/uploads/2012/08/guardClause1.png" alt="guard clause" width="575" height="280" /></a></p>
+<p>En mi opinión este código tiene como mínimo un problema: todo el método está contenido en un condicional.</p>
+<p>Tener todo el método contenido en un condicional es un conocido anti-patrón, Kent Beck recoge este en su libro "Implementation Patterns"  (Beck. K, Implementation Patterns. Addison-Wesley, p 70-71)</p>
+<p>Refactorizando un poco el código queda así:</p>
+<p><a href="{{site.baseurl}}/uploads/2012/08/guardClause2.png"><img class="aligncenter size-full wp-image-3197" title="guardClause2" src="{{site.baseurl}}/uploads/2012/08/guardClause2.png" alt="guard clause refactored" width="575" height="280" /></a></p>
+<p>Ahora el codigo es más legible y queda claro que el condicional prueba un caso que invalida la ejecución del resto del código.</p>
+<p>Citando (y traduciendo libremente) a Kent Beck:</p>
+<blockquote><p>Cuando estoy leyendo el código y encuentro el if, hago una nota mental para buscar el else mientras estoy leyendo el then. Mentalmente pongo la condición en una pila. Esto es una distracción mientras leo el cuerpo de la cláusula then.</p>
+<p>When I read the first version, I make a note to look for an else clause while I am reading the then clause. I mentally put the condition on a stack. All of this is a distraction while I am reading the body of the then clause</p></blockquote>
+<p>(p. 70)</p>

@@ -1,0 +1,83 @@
+body{
+    font-size: 1.4em;
+}
+
+.smalltitle{
+    display: block;
+}
+
+.bigtitle{
+    display: none;
+}
+
+#team .name {
+	display: inline;
+	vertical-align: top;
+}
+
+#team .photo {
+	float: left;
+
+}
+
+#team .description {
+	diplay:inline; 
+	float:left;
+	width:60%;
+	margin-left:10px;
+}
+
+#team .smallclear {
+	clear: both;
+	margin-bottom: 30px;
+}
+
+#team .name {
+	font-size: 1.8em;
+}
+
+.member{
+	height:190px;
+}
+.project figcaption {
+	min-height: 40px;
+}
+
+.font-medium, .blogtext, .tag {
+    font-size: 0.8em;
+}
+
+.tags {
+    line-height: 1em;
+}
+
+.project .button {
+    left: 20%;
+}
+
+.button p {
+	font-size:1em;
+}
+
+section h1,
+article header,
+.white .sectionheader,
+.black .sectionheader,
+.corevalue{
+	text-shadow:none;
+}
+
+.logo img {
+    height: 170px;
+    width: 250px;
+    left:0;
+    position: relative;
+}
+
+.logo {
+    background: none;
+}
+
+#greetings {
+	float:none;
+}

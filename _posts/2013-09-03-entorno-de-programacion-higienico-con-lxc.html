@@ -1,0 +1,55 @@
+---
+layout: post
+status: publish
+published: true
+title: Entorno de programación higiénico con LXC
+author:
+  display_name: Miguel Angel
+  login: Miguel Angel
+  email: mike@becodemyfriend.com
+  url: http://www.becodemyfriend.com
+author_login: Miguel Angel
+author_email: mike@becodemyfriend.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 4221
+wordpress_url: http://www.becodemyfriend.com/?p=4221
+date: '2013-09-03 12:59:28 +0000'
+date_gmt: '2013-09-03 10:59:28 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Tooling
+- Artesanía del software
+- Sistemas
+---
+<p>Últimamente he estado trasteando con <a href="http://www.docker.io/" target="_blank">Docker</a>, un proyecto que crea contenedores dentro del sistema operativo, y al descartar su uso se me ha ocurrido que podría contar por qué y cómo uso los contenedores en mi entorno de trabajo.</p>
+<p>Los contenedores son una solución a una necesidad: <strong>mantener mi entorno de trabajo lo más limpio posible</strong>. Trabajo con diferentes <em>stacks</em> en diferentes versiones, una larga lista de dependencias y distintos servidores de aplicaciones, bajo estas condiciones el sistema operativo me exigía un formateo cada 4 semanas. Lógico. El sistema se vuelve inestable,  pierdo confianza en las dependencias que estoy utilizando en cada proyecto.</p>
+<p>Llegados a este punto me propuse instalar un <a href="https://www.virtualbox.org/" target="_blank">VirtualBox</a> para cada proyecto. El inconveniente de VirtualBox es que es una tecnología que exige muchos recursos y no me resultaba sencilla de configurar. Al final abandoné esta opción por sus exigencias.</p>
+<p>Entonces <a href="https://twitter.com/scyldinga" target="_blank">un amigo</a> me dejó caer que existe una tecnología de virtualización llamada <a href="http://lxc.sourceforge.net/" target="_blank">LXC</a> basada en contenedores. Los contenedores son máquinas virtuales pero<strong> el nivel de virtualización está más cerca de la aplicación y más lejos del hardware</strong> que VirtualBox, lo que permite que el consumo de recursos sea mucho menor. <strong>Un contenedor aísla una parte de los recursos del sistema operativo</strong>, creando la ilusión de que son máquinas independientes.</p>
+<p>Veamos como instalar y empezar a usar LXC, en <a href="https://help.ubuntu.com/12.10/serverguide/lxc.html" target="_blank">Ubuntu</a>, que ofrece un soporte estupendo para LXC. No tuve que configurar nada en absoluto para empezar a usarlo.</p>
+<pre>##instalar lxc
+sudo apt-get install lxc
+
+##crear la máquina virtual con nombre rubymachine
+sudo lxc-create -t ubuntu -n rubymachine
+
+## encender el guest y entrar en su consola
+## usuario y password son la palabra 'ubuntu'
+sudo lxc-start -n rubymachine
+
+## la máquina es bastante básica, hay que instalar varios paquetes
+sudo apt-get install -y curl git
+
+## ahora ruby 
+curl -L https://get.rvm.io | bash -s stable --ruby
+
+## clonamos el repo con el que vayamos a trabajar
+git clone git@github.com:desarrollolocal/buzonciudadano.git</pre>
+<p>Abrir una consola nueva en el sistema <em>host</em> para terminar la configuración, el sistema de archivos del <em>guest</em> esta aislado pero permanece montado en una carpeta del <em>host</em>.</p>
+<pre>##acceso directo desde el workspace
+ln -s /var/lib/lxc/rubymachine/rootfs/home/ubuntu/myproject   /home/miguel/workspace/myproject
+
+##configuraciones personales
+cp -r ~/.ssh /var/lib/lxc/rubymachine/rootfs/home/ubuntu
+cp ~/.gitconfig /var/lib/lxc/rubymachine/rootfs/home/ubuntu</pre>

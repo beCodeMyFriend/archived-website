@@ -1,0 +1,50 @@
+---
+layout: post
+status: publish
+published: true
+title: El dilema de la autenticación universal con OpenID y OAuth
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+excerpt: Primeras impresiones sobre los sistemas de autenticación basados en servicios
+  de terceros
+wordpress_id: 151
+wordpress_url: http://www.becodemyfriend.com/?p=151
+date: '2010-10-19 10:09:27 +0000'
+date_gmt: '2010-10-19 09:09:27 +0000'
+categories:
+- Empresa
+tags:
+- OAuth
+- OpenID
+- UX
+- Lean Startup
+---
+<p style="text-align:center"><img class="aligncenter size-full wp-image-348" title="El dilema de la autenticación universal con OpenID y OAuth" src="{{site.baseurl}}/uploads/2010/10/LOL.png" alt="" width="294" height="166" /></p>
+<p>Una de las evoluciones a las que se enfrenta Internet en nuestros tiempos es al dilema de la autenticación universal. Cada vez consumimos más servicios on-line: Twitter, Facebook, Gmail, Hotmail, Flickr, Myspace y cientos de otros... acumulando toda una colección de nombres de usuario y contraseñas. Sería de gran ayuda contar con un sistema universal que nos permitiera identificarnos, como nuestro DNI o número de pasaporte, pero actualmente no existe una solución clara y estandarizada y como usuarios estamos empezando a sufrir del denominado <em><strong>password fatigue</strong></em>.</p>
+<p>Cada vez que queremos probar un servicio nuevo, se nos presentan formularios que debemos rellenar, emails de confirmación, etc. A menudo el nombre de usuario que utilizamos regularmente no está disponible o el sistema es más estricto de lo habitual en la validación de contraseñas y nos vemos forzados a inventar otros nuevos que tendemos a olvidar. En el mejor de los casos tomamos nota en una libreta o un archivo de texto, lo cual representa un problema obvio de seguridad.</p>
+<p>La industria es consciente de la problemática a la que se enfrentan los usuarios y de ahí han nacido iniciativas como <strong>OpenId</strong> y <strong>OAuth</strong>. La mayoría de los grandes servicios soportan <strong>OpenId</strong> (Wordpress, Blogger), <strong>OAuth</strong> (Twitter, Vimeo, Digg, Foursquare, Hi5) o ambos (Google, Yahoo, MySpace, Facebook). Estás dos soluciones coinciden abordando el cuestión de la autenticación universal, aunque <strong>OAuth</strong> es más extensa, cubriendo también la segunda parte de este dilema: autorizar el acceso a recursos hospedados en servicios remotos.</p>
+<p>El funcionamiento percibido por el usuario es simple tanto en el caso de <strong>OpenId</strong> como de <strong>OAuth</strong>:</p>
+<ol>
+<li>Queremos acceder a un servicio y en lugar de crear una cuenta específica para ese sistema, escogemos autenticarnos mediante nuestra cuenta de Twitter ("<strong>Sign-in with Twitter</strong>" basado en OAuth).</li>
+<li>El sistema se comunica con Twitter para pedir que nos valide como usuario y nos envía a una página segura en los servidores de Twitter donde nos harán introducir nuestro nombre de usuario y contraseña.</li>
+<li>Twitter comunica al servicio que somos quien decimos ser, activando una sesión autenticada de usuario durante un periodo de tiempo limitado y devolviéndonos a la página del servicio.</li>
+</ol>
+<p>Las ventajas de este sistema son evidentes:</p>
+<ul>
+<li>Con una única cuenta podemos manejar múltiples servicios, reduciendo nuestra <em>password fatigue</em>.</li>
+<li>Limitamos la cantidad de información que nos vemos obligados a proporcionar según a qué proveedores de servicios, incrementando nuestra privacidad.</li>
+<li>Estas herramientas de autenticación de usuarios cada vez están más extendidas, formando parte ya de muchos frameworks y CMS como Joomla, <strong>CodeIgniter</strong>, Drupal y Wordpress. Por tanto el número de páginas web que soportan este sistema es creciente.</li>
+</ul>
+<p>Pero también presenta grandes inconvenientes:</p>
+<ul>
+<li>Resultaría muy fácil para páginas web malintencionadas dirigirnos a sitios de autenticación que simulen ser nuestro proveedor de OAuth u OpenID para capturar nuestro nombre de usuario y contraseña. Para los programadores y los usuarios expertos esto no supone un problema, están acostumbrados a detectar rápidamente situaciones de <strong>Phishing</strong>. Pero para un gran número de internautas estos procesos son complejos y se dejan engañar fácilmente.</li>
+<li>En el caso en que nuestra cuenta única quedara comprometida, accederían a todos los servicios asociados a dicha cuenta.</li>
+<li>Nuestro proveedor de autenticación, al fin y al cabo una empresa privada, dispone de información sobre nuestra actividad en Internet y, en un momento dado, incluso puede acceder a nuestra información en esos sitios.</li>
+</ul>
+<p>Algunas personas sugieren evitar estos riesgos disponiendo de varias cuentas de OpenID/OAuth. Aunque esta solución es contraria al propio concepto de autenticación única, al menos podríamos reducir nuestra cantidad de cuentas a 3, utilizándolas arbitrariamente según el grado de seguridad que deseemos.</p>
+<p>Mi conclusión personal: es el momento de implementar sistemas de autenticación on-line basados en estas tecnologías, aunque tal vez es demasiado temprano como para no ofrecer la alternativa de crear una cuenta específica.</p>

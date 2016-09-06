@@ -1,0 +1,100 @@
+---
+layout: post
+status: publish
+published: true
+title: Just another Ajax back button
+author:
+  display_name: Miguel Angel
+  login: Miguel Angel
+  email: mike@becodemyfriend.com
+  url: http://www.becodemyfriend.com
+author_login: Miguel Angel
+author_email: mike@becodemyfriend.com
+author_url: http://www.becodemyfriend.com
+excerpt: "Me ha resultado muy curioso el <a href=\"http://onjava.com/onjava/2005/10/26/ajax-handling-bookmarks-and-back-button.html\">clásico</a>
+  <a href=\"http://isolani.co.uk/blog/javascript/FixingTheBackButtonThatAjaxBroke\"
+  target=\"_blank\">problema del 'Back button'</a>, no lo he conocido hasta hace poco
+  y aunque es extremadamente común, googleando no he dado rápidamente con <em>La Solución.</em>\r\n\r\n<strong>¿Qué
+  problema hay con el Back button?</strong>\r\n\r\nEn aplicaciones altamente \"ajaxificadas\"
+  el usuario realiza varias acciones tales como rellenar varios formularios, explorar
+  distintos listados, etc. Todas dentro de la misma página. Cuando el usuario usa
+  el Back button del navegador espera volver a la última acción realizada. Es aquí
+  donde se halla el problema, el Back button te devuelve a la página anteriormente
+  visitada, a un estado que posiblemente no tenga ninguna relación con lo que el usuario
+  espera que aparezca.\r\n\r\n<p style=\"text-align:center\"><img class=\"aligncenter\"
+  title=\"ajax back button behaviour\" src=\"http://naofumi.castle104.com/wp-content{{site.baseurl}}/uploads/2010/02/Ajax-javascript-back-button.jpg\"
+  alt=\"\" width=\"440\" height=\"281\" /></p>\r\n\r\n"
+wordpress_id: 1345
+wordpress_url: http://www.becodemyfriend.com/?p=1345
+date: '2011-06-14 17:28:00 +0000'
+date_gmt: '2011-06-14 16:28:00 +0000'
+categories:
+- Programación
+tags:
+- Manuales
+- Programación
+---
+<p>Me ha resultado muy curioso el <a href="http://onjava.com/onjava/2005/10/26/ajax-handling-bookmarks-and-back-button.html">clásico</a> <a href="http://isolani.co.uk/blog/javascript/FixingTheBackButtonThatAjaxBroke" target="_blank">problema del 'Back button'</a>, no lo he conocido hasta hace poco y aunque es extremadamente común, googleando no he dado rápidamente con <em>La Solución.</em></p>
+<p><strong>¿Qué problema hay con el Back button?</strong></p>
+<p>En aplicaciones altamente "ajaxificadas" el usuario realiza varias acciones tales como rellenar varios formularios, explorar distintos listados, etc. Todas dentro de la misma página. Cuando el usuario usa el Back button del navegador espera volver a la última acción realizada. Es aquí donde se halla el problema, el Back button te devuelve a la página anteriormente visitada, a un estado que posiblemente no tenga ninguna relación con lo que el usuario espera que aparezca.</p>
+<p style="text-align:center"><img class="aligncenter" title="ajax back button behaviour" src="http://naofumi.castle104.com/wp-content{{site.baseurl}}/uploads/2010/02/Ajax-javascript-back-button.jpg" alt="" width="440" height="281" /></p>
+<p><a id="more"></a><a id="more-1345"></a></p>
+<p>Mi experiencia en javascript es limitada y con el uso intensivo de ajax que estamos haciendo tarde o temprano me iba a encontrar con este asuntillo. Voy a describir la implementación que he hecho ya que no utilizamos jquery :O sino un framework made in beCode.</p>
+<p>El código que presento se basa en este <a href="http://www.ajaxonomy.com/2007/web-design/a-better-ajax-back-button-solution">post</a>, la solución se basa en ir <em>engañando</em> al navegador creando entradas nuevas en el historial cada vez que cambia de estado la página. Por otra parte hay que detectar cuando el usuario esta usando los botones de navegación para recuperar los estados por los que ha ido pasando el usuario. Vamos allá…</p>
+<p>1. Creación de marcadores: Esta clase esta encapsulando el comportamiento para crear un anchor tag y navegar. Cada vez que la página cambia de estado se invoca esta clase para así añadir una entrada al historial con un hash distinto para cada uno de los estados de la página.</p>
+<pre class="javascript" name="code">var AjaxPageMarker = new Class({
+    markerName: '',			
+
+    draw: function(){
+        this.deletePreviousMarker();
+        this.createNewMarker();
+        this.navigateToMarker();
+    },		
+
+    setMarkerName: function(markerName){
+        this.markerName = markerName;
+    },
+
+    deletePreviousMarker: function(){
+        if(this.panel) //panel es el elemento de este componente
+            this.panel.destroy();
+    },		
+
+    createNewMarker: function(){
+        this.panel = new Element('a',
+            {"id" : this.getUniqueID(),
+            "name": this.markerName
+            }).inject(this.container);
+    },		
+
+    navigateToMarker: function(){
+        document.location = '#' + this.markerName;
+    },
+});</pre>
+<p>2. Monitorización. Se crea un setInterval que monitoriza la url en busca de cambios en el hash. Cuando se detecta un cambio se ejecuta una función que recupera el estado adecuado de la página</p>
+<pre class="javascript" name="code">var UrlMonitorService = new Class({
+    Extends: Service,
+    name: "URLMONITOR",
+    typeName:"UrlMonitorService",		
+
+    initialize: function(){
+	documentmarker = this.getCurrentMarker();//documentmarker vive en 'document'
+        window.setInterval(
+	    function(){
+	        var currentMarker = this.getCurrentMarker();
+		if(currentMarker != documentmarker){
+		    this.execute('updateMarker', currentMarker); // propio de nuestro framework, indireccion para ejecutar un metodo de este mismo objeto y envia un evento al bus, que escucharan otros componentes  
+                }
+	    }.bind(this)
+            , 500);
+    },
+
+    updateMarker: function(currentMarker){
+        documentmarker = currentMarker;
+    },
+
+    getCurrentMarker: function(){
+        return document.location.href.substring(document.location.href.indexOf('#', 0)+1, document.location.href.length);
+    },
+});</pre>
+<p>El código esta basado en mootools y también en el framework propio que usamos (aka Cuore), he comentado algunas instrucciones especialmente para la ocasión.</p>

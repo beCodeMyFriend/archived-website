@@ -1,0 +1,180 @@
+---
+layout: post
+status: publish
+published: true
+title: Entendiendo OAuth con Twitter (from scratch)
+author:
+  display_name: txau
+  login: Jaume Cardona
+  email: txau@becodemyfriend.com
+  url: ''
+author_login: Jaume Cardona
+author_email: txau@becodemyfriend.com
+excerpt: Cómo utilizar Twitter como servicio de autenticación externo. Paso a paso
+wordpress_id: 157
+wordpress_url: http://www.becodemyfriend.com/?p=157
+date: '2010-10-26 21:50:56 +0000'
+date_gmt: '2010-10-26 20:50:56 +0000'
+categories:
+- Programación
+tags:
+- OAuth
+- Programación
+- Twitter
+---
+<p>Este artículo está orientado a aquellos programadores que quieran entender cómo funciona el protocolo <strong>OAuth</strong>. Para implementar un módulo de autenticación basada en terceros con OAuth o acceder a recursos remotos, no es necesaria una compresión a tan bajo nivel, sin embargo, es conveniente conocer las tecnologías que utilizamos en profundidad.</p>
+<p>En el proceso intervienen tres actores:</p>
+<ul>
+<li>Al servicio al que el usuario quiere acceder usando una cuenta externa se le llama <strong>Consumer</strong>.</li>
+<li>Al servicio de autenticación externo se le llama <strong>Service Provider</strong>.</li>
+<li>Al usuario se le llama… <strong>User</strong> =)</li>
+</ul>
+<p>La mayoría de los ejemplos que encontramos por Internet se centran en un escenario en el que el <strong>consumer</strong> quiere acceder a recursos del user en el <strong>service provider</strong>, y el user autoriza dicho acceso. Este artículo sin embargo, cubre el caso en el que el <strong>user</strong> quiere acceder a recursos en el <strong>consumer</strong>, pero autenticarse con su cuenta del<strong> service provider</strong>, es decir, usamos OAuth como protocolo de autenticación, no de autorización. Recordemos la diferencia entre autenticar, reconocer a un usuario y validar su identidad, y autorizar, otorgar permiso para realizar una acción.</p>
+<p>Afortunadamente, en el caso de OAuth los flujos que se producen para autenticar y autorizar, son idénticos. En el ejemplo que vamos a utilizar (Twitter), la única diferencia son las URLs a las que llamamos:</p>
+<ul>
+<li>https://api.twitter.com/oauth/authenticate</li>
+<li>https://api.twitter.com/oauth/authorize</li>
+</ul>
+<h2>Flujo</h2>
+<p>En una simplificación extrema, la comunicación que se produce entre los tres actores es:</p>
+<ol>
+<li>El consumer pide un <strong>token</strong> al service provider, esto es transparente para el usuario.</li>
+<li>El consumer redirige al usuario a una página segura en el service provider, pasándole el token como parámetro.</li>
+<li>El usuario se autentica en la página del service provider, validando el token.</li>
+<li>El service provider envía al usuario de vuelta a la página del consumer especificada en el parámetro <strong>oauth_callback</strong>.</li>
+<li>El consumer recoge al usuario en la <strong>callback URL</strong> junto con el token de confirmación de identidad.</li>
+</ol>
+<p>La seguridad en este proceso está basada en firmas digitales (<strong>digital signatures</strong>). Es decir, se han acordado de antemano una serie de cadenas secretas que se utilizan en un algoritmo matemático, combinadas con otros parámetros en un formato concreto para producir una <strong>firma</strong>. La especificación de este protocolo está definida en el <strong>RFC5849</strong>.</p>
+<p>Para entender cómo funciona el protocolo detalladamente, he implementado cada uno de los pasos. El código es <strong>PHP</strong> simple y llano, sin objetos ni TDD y evitando las librerías existentes que automatizan todo este proceso, con la única intención de ayudar a otros (y a mí mismo) a entender el algoritmo. El service provider es <strong>Twitter</strong> y el consumer es <strong>BeCode</strong>.</p>
+<p>Antes de poder realizar el primer paso (Request token) hay que registrarse como consumer en el service provider. Conectamos con la cuenta de twitter.com que queremos que sea la propietaria de la aplicación. En el menú settings -&gt; connections hay un apartado para developers con un link a "Register new application". Encontramos este formulario:</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-167" title="Formulario de registro de aplicaciones de Twiter" src="{{site.baseurl}}/uploads/2010/10/Screen-shot-2010-10-21-at-11.57.16-AM1.png" alt="" width="601" height="484" /></p>
+<p>Tras registrar la aplicación, Twitter nos proporciona los datos necesarios para crear nuestra firma digital y las URLs donde se encuentran los servicios.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-170" title="Información OAuth de la aplicación registrada" src="{{site.baseurl}}/uploads/2010/10/Screen-shot-2010-10-21-at-11.58.44-AM.png" alt="" width="424" height="527" /></p>
+<h2>Request Token</h2>
+<p>Cualquier comunicación mediante el protocolo OAuth se inicia con una llamada <strong>Request Token</strong>. En este paso el consumer y el provider se autentican mutuamente mediante una signature y acuerdan un token que se utilizará para autenticar al usuario. Un token es un código (cadena) único de carácter temporal que sirve para identificar, normalmente, una sesión. El token no está asociado a ningún usuario hasta que el usuario lo valida.</p>
+<p>Este proceso puede parecer un poco complicado al principio, pero una vez entendida la implementación de request token, programar el resto de los pasos es trivial.</p>
+<p>De acuerdo con el RFC5849, la llamada "Request token" debe tener el siguiente formato:</p>
+<ol>
+<li>HTTP o HTTPs request mediante el método POST o GET. Según Twitter DEBEMOS utilizar POST, pero las pruebas que he hecho me han demostrado que con GET funciona exactamente igual. En el ejemplo utilizaremos POST.</li>
+<li>Enviar por POST los parámetros obligatorios para la llamada request token:</li>
+</ol>
+<ul>
+<li><strong>oauth_consumer_key</strong>: la consumer key que Twitter ha asociado a nuestra aplicación. En nuestro ejemplo "0Mm0AKopYbE69oHRm8PmA".</li>
+<li><strong>oauth_nonce</strong>: nonce significa "number used once" normalmente es una cadena alfanumérica aleatoria.</li>
+<li><strong>oauth_signature_method</strong>: hay tres posibles métodos <strong>PLAINTEXT</strong>, <strong>HMAC-SHA1</strong> y <strong>RSA-SHA1</strong>. El método PLAINTEXT no es recomendable (dada la existencia de los otros) y en ningún caso lo usaremos sin HTTPS. Twitter nos fuerza a utilizar <strong>HMAC-SHA1</strong>.</li>
+<li><strong>oauth_timestamp</strong>: el timestamp actual. Una de las principales fuentes de problemas es la hora del sistema. Si no está en el timezone que le corresponde y con el reloj en sincronía, la llamada request token fallará. He experimentado problemas previamente con Echofon para Firefox (cliente de Twitter) precisamente por no tener el reloj de sistema en sincronía.</li>
+<li><strong>oauth_version</strong>: es un parámetro opcional. En caso de estar presente su valor debe ser "1.0". Probablemente con la aparición de OAuth 2.0 se convertirá en un parámetro obligatorio.</li>
+<li><strong>oauth_signature</strong>: en el RFC5849 se explica cómo se debe generar dicha firma basándonos en los parámetros anteriores y el consumer secret.</li>
+</ul>
+<p>Así que por ahora disponemos del siguiente código:</p>
+<pre name='code' class="php">$config = array
+(
+    "requestTokenURL" =&gt; "http://twitter.com/oauth/request_token",
+    "requestTokenMethod" =&gt; "POST",
+    "signatureMethod" =&gt; "HMAC-SHA1",
+    "consumerKey" =&gt; "0Mm0AKopYbE69oHRm8PmA",
+    "consumerSecret" =&gt; "BeDg3NVgYxoMkPyEjAG5rMVcrmkzkuSGLJWhvr6aamI"
+);
+
+$requestParameters = array
+(
+    "oauth_consumer_key" =&gt; $config['consumerKey'],
+    "oauth_nonce" =&gt; md5(time()),
+    "oauth_signature_method" =&gt; $config['signatureMethod'],
+    "oauth_timestamp" =&gt; time()
+);</pre>
+<h2>Creando la signature</h2>
+<p>Para crear la firma concatenaremos requestTokenMethod + requestTokenURL + requestParameters formando la llamada <strong>base string</strong> que inmediatamente encriptaremos en <strong>HMAC-SHA1</strong> utilizando una combinación de los parámetros consumer secret y token secret proporcionados por Twitter como clave. Existen una serie de reglas sobre qué formato debe tener la base string y cómo deben codificarse los parámetros. He querido reducir este tutorial al código mínimo e imprescindible, por eso asumiremos que:</p>
+<ul>
+<li> Los parámetros están ordenados por nombre de antemano (el array $requestParameters está ordenado alfabéticamente).</li>
+<li> No hay parámetros con nombres duplicados que deban ordenarse por valor.</li>
+<li>Las cadenas requestTokenMethod y requestTokenURL ya están normalizadas tal y como se describe en el RFC5849.</li>
+</ul>
+<h3>Paso a paso:</h3>
+<p><strong>1. </strong>Unir todos los parámetros en una cadena de pares clave=valor concatenadas por el símbolo '&amp;' y codificada según las reglas del RFC3986. La función urlencode de PHP no cumple totalmente con esta especificación, por eso he creado una función de soporte donde he ido añadiendo las excepciones que he ido encontrado:</p>
+<pre name='code' class="php">$signatureParameters = array();
+foreach ($requestParameters as $parameter =&gt; $value)
+{
+	$signatureParameters[] = rfc3986_encode($parameter) . '=' . rfc3986_encode($value);
+}
+
+$signatureParameters = rfc3986_encode(implode('&amp;', $signatureParameters));
+
+function rfc3986_encode($string)
+{
+	$result = rawurlencode($string);
+	$result = str_replace('%7E', '~', $result);
+	$result = str_replace('=', '%3D', $result);
+	$result = str_replace('+', '%2B', $result);
+
+	return $result;
+}</pre>
+<p>Y este es el resultado:</p>
+<pre name='code' class="php">oauth_consumer_key%3D0Mm0AKopYbE69oHRm8PmA%26oauth_nonce%3D5b635fdf11cae0734cd80789ad5679e0%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1287765191</pre>
+<p><strong>2. </strong>Generar la <strong>base string</strong>, concatenando mediante ampersands (&amp;) las cadenas requestTokenMethod y requestTokenURL normalizadas y codificadas también en RFC3986:</p>
+<pre name='code' class="php">$baseString = rfc3986_encode($config['requestTokenMethod'])
+			 ."&amp;".rfc3986_encode($config['requestTokenURL'])
+			 ."&amp;".$signatureParameters;</pre>
+<p>Obteniendo:</p>
+<pre name='code' class="php">POST&amp;http%3A%2F%2Ftwitter.com%2Foauth%2Frequest_token&amp;oauth_consumer_key%3D0Mm0AKopYbE69oHRm8PmA%26oauth_nonce%3D5b635fdf11cae0734cd80789ad5679e0%26oauth_signature_method%3DHMAC-SHA1%26oauth_timestamp%3D1287765191</pre>
+<p><strong>3.</strong> Crear la clave de encriptación para HMAC-SHA1 combinando consumer secret + token secret. Aunque en estos momentos no disponemos de un token secret, el parámetro debe estar presente siendo su valor "". Ambos deben ser codificados de nuevo en RFC3986:</p>
+<pre name='code' class="php">$tokenSecret = "";
+$key = rfc3986_encode($config['consumerSecret']) ."&amp;". rfc3986_encode($tokenSecret);</pre>
+<p>Dando como resultado:</p>
+<pre name='code' class="php">BeDg3NVgYxoMkPyEjAG5rMVcrmkzkuSGLJWhvr6aamI&amp;</pre>
+<p>Sin el ampersand al final de la cadena, con el token secret siendo "" concatenado inmediatamente detrás, nuestra firma no será válida.</p>
+<p><strong>4.</strong> Finalmente generamos nuestra firma HMAC-SHA1 utilizando la base string como input y la clave combinada como key. Es necesario codificar la signature en RFC3986 antes de enviarla al servidor:</p>
+<pre name='code' class="php">$signature = base64_encode(hash_hmac('sha1', $baseString, $key, true));
+$RFC3986signature = rfc3986_encode($signature);</pre>
+<p>Esta es nuestra signature:</p>
+<pre name='code' class="php">nATUqzz2h1imqXrpmOfD5cog14A%3D</pre>
+<p>Podemos reproducir todos los pasos y validar nuestro algoritmo en <a href="http://hueniverse.com/2008/10/beginners-guide-to-oauth-part-iv-signing-requests/" target="_blank">esta herramienta</a>.</p>
+<p><strong>5.</strong> Ya tenemos todos los elementos necesarios para solicitar un token a Twitter. Este proceso es transparente para el usuario, se produce entre el consumer y el service provider, mediante un HTTPS POST request, enviando una cabecera de autorización:</p>
+<pre name='code' class="php">$authorizationHeader = 'Authorization: OAuth oauth_consumer_key="'.$requestParameters["oauth_consumer_key"].'",
+							oauth_nonce="'.$requestParameters["oauth_nonce"].'",
+							oauth_signature_method="'.$requestParameters["oauth_signature_method"].'",
+							oauth_timestamp="'.$requestParameters["oauth_timestamp"].'",
+							oauth_signature="'.$RFC3986signature.'"';
+
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+curl_setopt($curl, CURLOPT_POST, TRUE);
+curl_setopt($curl, CURLOPT_URL, $config['requestTokenURL']);
+curl_setopt($curl, CURLOPT_HTTPHEADER, array($authorizationHeader, "Expect:"));
+$response = curl_exec($curl);</pre>
+<p>La cabecera enviada al servidor tiene este aspecto:</p>
+<pre name='code' class="php">Authorization: OAuth oauth_consumer_key="0Mm0AKopYbE69oHRm8PmA",
+				oauth_nonce="5b635fdf11cae0734cd80789ad5679e0",
+				oauth_signature_method="HMAC-SHA1",
+				oauth_timestamp="1287765191",
+				oauth_signature="nATUqzz2h1imqXrpmOfD5cog14A%3D"</pre>
+<p>Y la respuesta de Twitter:</p>
+<pre name='code' class="php">oauth_token=NzWC71x66rmGKMp0KepVxVy4sNjtargv4JbhZesAQ&amp;oauth_token_secret=eH4eqbTBlpvuN2EykP5wmV8y4nyLSHtiUVr4PbQzI</pre>
+<p>Guardaremos estos dos parámetros para utilizarlos más adelante. Preferiblemente en la sesión del usuario o en una cookie.</p>
+<h2>Autenticación</h2>
+<p>El siguiente paso es redirigir a nuestro usuario a la página de autenticación de Twitter, pasándo el token como parámetro. Esta es la URL:</p>
+<p>https://api.twitter.com/oauth/authenticate?oauth_token=NzWC71x66rmGKMp0KepVxVy4sNjtargv4JbhZesAQ</p>
+<p>El usuario encontrará una pantalla similar a esta:</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-171" title="Authorize application" src="{{site.baseurl}}/uploads/2010/10/Screen-shot-2010-10-21-at-5.47.26-PM.png" alt="" width="608" height="314" /></p>
+<p>Tras validar nuestro token, Twitter redirige al usuario a la página base que especificamos en el momento de alta de la aplicación (www.becodemyfriend.com), o a la especificada en el parámetro opcional oauth_callback.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-172" title="Twitter app redirect screen" src="{{site.baseurl}}/uploads/2010/10/Screen-shot-2010-10-21-at-3.36.44-PM.png" alt="" width="522" height="189" /></p>
+<p>En nuestro ejemplo, esta es la URL de callback:</p>
+<p>http://www.becodemyfriend.com/?oauth_token=NzWC71x66rmGKMp0KepVxVy4sNjtargv4JbhZesAQ</p>
+<p>El token con el que Twitter envía de vuelta al usuario a nuestra aplicación es <strong>el mismo que tenemos almacenado</strong> en la sesión de usuario. Comparando ambos, verificamos que el usuario es quien dice ser, con el beneplácito de Twitter, y le damos acceso a nuestra aplicación.</p>
+<h1>Persistiendo la autenticación</h1>
+<p>¿No sería un #win que el usuario no tuviera que introducir su contraseña cada vez que quisiera autenticarse en nuestra aplicación? Podemos conseguirlo intercambiando nuestro request token (temporal) validado por el usuario, por un access token (permanente).</p>
+<p>El algoritmo es idéntico al request_token, pero enviando <strong>oauth_token</strong> como parámetro y utilizando <strong>oauth_token_secret </strong>en la generación de la clave combinada (anteriormente era ""). La URL es:</p>
+<p>https://api.twitter.com/oauth/access_token</p>
+<p>Y esta es la respuesta en el caso de mi usuario @txau (he añadido los retornos de carro para mejorar la legibilidad):</p>
+<p>oauth_token=15806140-DkCOmaPdxynKrMkH4afWo3mXf1hP9YFhOll9uswmf<br />
+&amp;oauth_token_secret=GlYbDfAvzZKVtNFX5rX8hpAIhK9uHEbh2F7nSrkjQ<br />
+&amp;user_id=15806140<br />
+&amp;screen_name=txau</p>
+<p>La arquitectura de autenticación de nuestra aplicación, debería almacenar estos 4 datos, que nos permiten realizar acciones en el service provider en nombre del usuario.</p>
+<p>De acuerdo con Twitter, si la sesión de usuario está activa y nuestra aplicación persistida, se producirá una redirección transparente (en la mayoría de los casos, dependiendo de la velocidad de la conexión a Internet del user), quedando automáticamente autenticados en nuestro sistema.</p>
+<p><em>nota:</em> en las especificaciones del protocolo y en la propia documentación de Twitter se exige un parámetro adicional (<strong>oauth_verifier</strong>) para poder hacer llamada access token. Este parámetro sólo es obligatorio si hemos utilizado el parámetro opcional oauth_callback y nos lo entregará Twitter junto con el oauth_token.</p>
+<h1>Referencias</h1>
+<p><a href="http://tools.ietf.org/html/rfc5849" target="_blank">http://tools.ietf.org/html/rfc5849</a><br />
+<a href="http://tools.ietf.org/html/rfc3986" target="_blank">http://tools.ietf.org/html/rfc3986</a><br />
+<a href="http://dev.twitter.com/pages/auth" target="_blank">http://dev.twitter.com/pages/auth</a><br />
+<a href="http://hueniverse.com/oauth/" target="_blank">http://hueniverse.com/oauth/</a></p>

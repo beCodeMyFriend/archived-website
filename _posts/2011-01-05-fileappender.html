@@ -1,0 +1,82 @@
+---
+layout: post
+status: publish
+published: true
+title: FileAppender
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 522
+wordpress_url: http://www.becodemyfriend.com/?p=522
+date: '2011-01-05 17:22:44 +0000'
+date_gmt: '2011-01-05 16:22:44 +0000'
+categories:
+- Programación
+tags:
+- Java
+- Programación
+---
+<div id="_mcePaste">Para poder asignar un nombre dinámico en los ficheros que crea Log4J con el FileAppender deberemos crear un appender personalizado, como en la clase que pondremos a continuación. En la cual incluiremos en el nombre del fichero una fecha, pudiendo continuar usando todas las propiedades que el RollingFileAppender nos ofrece.</div>
+<pre name="code" class="java">
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+import org.apache.log4j.RollingFileAppender;
+
+public class TimestampFileAppender extends RollingFileAppender
+{
+    private static final String TARGET           = "\{timestamp\}";
+    protected String            timestampPattern = null;
+
+    public void setFile(String file)
+    {
+        if (timestampPattern != null)
+        {
+            super.setFile(file.replaceAll(TARGET, new SimpleDateFormat(timestampPattern).format(Calendar.getInstance().getTime())));
+        } else
+        {
+            super.setFile(file);
+        }
+    }
+
+    public void setFile(String fileName, boolean append, boolean bufferedIO, int bufferSize) throws IOException
+    {
+
+        if (timestampPattern != null)
+        {
+            super.setFile(fileName.replaceAll(TARGET, new SimpleDateFormat(timestampPattern).format(Calendar.getInstance().getTime())), append, bufferedIO, bufferSize);
+        } else
+        {
+            super.setFile(fileName, append, bufferedIO, bufferSize);
+        }
+    }
+
+    public String getTimestampPattern()
+    {
+        return timestampPattern;
+    }
+
+    public void setTimestampPattern(String timestampPattern)
+    {
+        this.timestampPattern = timestampPattern;
+    }
+
+}
+</pre>
+<div id="_mcePaste">Tal y como tendríamos la configuración para un RollingFileAppender, habría que añadir una sola propiedad:</div>
+<div id="_mcePaste">TimestampPattern</div>
+<div id="_mcePaste">Con lo que la configuración completa para un appender de este nuevo tipo creado sería:</div>
+<pre name="code" class="php">
+log4j.appender.FICHERO=com.asistp.geremias.registro.TimestampFileAppender
+log4j.appender.FICHERO.TimestampPattern=yyyy_MM_dd__HH_mm
+log4j.appender.FICHERO.MaxFileSize=10MB
+log4j.appender.FICHERO.MaxBackupIndex=1000
+log4j.appender.FICHERO.File=${catalina.home}/logs/milogpersonalizado_{timestamp}.log
+log4j.appender.FICHERO.layout=org.apache.log4j.PatternLayout
+log4j.appender.FICHERO.layout.ConversionPattern=%m%n
+</pre>

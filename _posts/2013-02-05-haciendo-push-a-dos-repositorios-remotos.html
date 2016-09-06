@@ -1,0 +1,31 @@
+---
+layout: post
+status: publish
+published: true
+title: Haciendo push a dos repositorios remotos
+author:
+  display_name: jjballano
+  login: jjballano
+  email: jesus@becodemyfriend.com
+  url: http://www.becodemyfriend.com
+author_login: jjballano
+author_email: jesus@becodemyfriend.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 3960
+wordpress_url: http://www.becodemyfriend.com/?p=3960
+date: '2013-02-05 18:10:07 +0000'
+date_gmt: '2013-02-05 17:10:07 +0000'
+categories:
+- Programación
+tags:
+- git
+- transparencia
+- bitbucket
+---
+<p>Creo que una de las mejores maneras de entregarle el código a un cliente es dejándoselo en una cuenta de <a href="http://bitbucket.org/" target="_blank">Bitbucket</a>[1] que él mismo se haya creado o hayamos creado para él. De esta forma no sólo tendrá el código, sino tendrá cada uno de los <em>commits</em> que hemos hecho y podrá ir viendo, si quiere, como vamos evolucionando el producto. Esta es otra forma más de ser transparentes con el cliente.</p>
+<p>Por otro lado, nos gusta quedarnos con el trabajo que hacemos, siempre que el cliente no tenga inconveniente, así que también usamos nuestro propio repositorio de código.</p>
+<p>Normalmente usamos Git para trabajar. Quería poder hacer push en ambos repositorios para tener siempre los 2 actualizados de la misma manera y encontré que editando el fichero .git/config, podría hacerlo Simplemente añadiendo las siguientes líneas:</p>
+<pre class="java" name="code"><code>[remote "all"] url = url_repo_1 url = url_repo_2</code></pre>
+<p>De esta manera, si hacemos un <em>git push all </em>se actualizarán automáticamente nuestros 2 respositorios.</p>
+<p>Ya se que no es un <em>tip</em> muy <em>pro</em>, pero igual a alguien le viene bien.</p>
+<p>[1] Se podría usar GitHub o cualquier otro, pero usamos Bitbucket simplemente porque nos permite tener un repositorio privado sin coste extra para el cliente.</p>

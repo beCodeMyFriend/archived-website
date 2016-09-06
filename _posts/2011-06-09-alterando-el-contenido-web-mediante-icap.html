@@ -1,0 +1,51 @@
+---
+layout: post
+status: publish
+published: true
+title: Alterando el contenido web mediante ICAP
+author:
+  display_name: Miguel Angel
+  login: Miguel Angel
+  email: mike@becodemyfriend.com
+  url: http://www.becodemyfriend.com
+author_login: Miguel Angel
+author_email: mike@becodemyfriend.com
+author_url: http://www.becodemyfriend.com
+wordpress_id: 1314
+wordpress_url: http://www.becodemyfriend.com/?p=1314
+date: '2011-06-09 12:28:57 +0000'
+date_gmt: '2011-06-09 11:28:57 +0000'
+categories:
+- Programación
+tags:
+- Manuales
+- Programación
+---
+<p>En cierto proyecto uno de los requisitos es que los usuarios de un site reciban un servicio nuevo, sin tener que modificar de ninguna manera el código fuente para reducir el coste de implantación. Para ello se ha decidido utilizar un servidor ICAP.</p>
+<p>¿Qué es ICAP? <a title="ICAP Wikipedia" href="http://en.wikipedia.org/wiki/Internet_Content_Adaptation_Protocol">ICAP</a> es básicamente un protocolo creado para extender los servidores proxy y poder dotarlos de más funciones. La comunicación ICAP tiene dos extremos: el cliente (generalmente un módulo embebido en el servidor proxy) y el servidor ICAP, que será el encargado de recibir los mensajes HTTP y procesarlos. Una vez procesado el contenido HTML lo devuelve modificado al proxy, que continuará con la comunicación de una manera transparente tanto al site que sirve el contenido como al usuario.</p>
+<p>Los chicos de <a title="Greasyspoon" href="http://greasyspoon.sourceforge.net/" target="_blank">GreasySpoon</a> tienen un diagrama que lo explica a la perfección</p>
+<p align=center><img class="aligncenter" title="ICAP schema" src="http://greasyspoon.sourceforge.net/fig/icap.png" alt="" width="580" height="350" /></p>
+<p>En este proyecto se ha montado un entorno donde el proxy y cliente ICAP es <a title="Squid" href="http://www.squid-cache.org/" target="_blank">Squid3</a> y el servidor ICAP es <a title="Greasyspoon" href="http://greasyspoon.sourceforge.net/" target="_blank">GreasySpoon</a>.</p>
+<p>Voy a introducir como instalarlo, configurarlo y hacer una pequeña prueba, aunque en la web de GreasySpoon están todos los detalles.</p>
+<h3>Paso 1</h3>
+<p>Vamos a necesitar instalar el paquete Squid3 en una máquina Linux (tiene que ser squid3 específicamente porque las configuraciones cambian)</p>
+<h3>Paso 2</h3>
+<p><a title="Download Greasyspoon" href="http://greasyspoon.sourceforge.net/download.html" target="_blank">Descargar</a> la última versión de GreasySpoon y su extensión para JRuby</p>
+<h3>Paso 3</h3>
+<p>Copiamos la extensión de JRuby descargada en la carpeta pkg de la instalación de GreasySpoon</p>
+<h3>Paso 4</h3>
+<p>Necesitamos indicarle al proxy que busque un servidor ICAP, se lo vamos a decir con  estas lineas al archivo de configuración, en Ubuntu esta en /etc/squid3/squid.conf</p>
+<pre class="java" name="code">icap_enable on
+icap_preview_enable on
+icap_service service_req reqmod_precache bypass=0 icap://127.0.0.1:1344/reqmod
+adaptation_access service_req allow all
+icap_service service_resp respmod_precache bypass=0 icap://127.0.0.1:1344/respmod
+adaptation_access service_resp allow all</pre>
+<h3>Paso 5</h3>
+<p>Arrancamos GreasySpoon con '<em>java -jar greasyspoon</em>' desde el directorio raíz de la instalación. Ahora arrancar Squid, es importante arrancar GreasySpoon antes que Squid porque Squid detectará el servicio ICAP en el arranque.</p>
+<h3>Paso 6</h3>
+<p>Ahora que esta todo instalando y funcionando entramos en el administrador (localhost:8088) y activamos uno de los 'response scripts'.</p>
+<p>Un Response Script se ejecutará para modificar la response que viajará al usuario después de hacer una petición del site objetivo. Probaremos con el script de ejemplo '<a href="http://greasyspoon.sourceforge.net/sample_java.html" target="_blank">hello</a>' que inserta el mensaje 'Hello world' en todas las respuestas HTTP que reciba el usuario desde cualquier site.Hay que decir que GreasySpoon permite escribir scripts en java, <a href="http://greasyspoon.sourceforge.net/sample_js.html" target="_blank">javascript</a> y <a href="http://greasyspoon.sourceforge.net/sample_ruby.html" target="_blank">ruby</a>, para cualquiera de ellos se hace casi imprescindible una librería para manejar elementos del DOM cómodamente, por ejemplo hpricot en ruby.</p>
+<h3>Paso 7</h3>
+<p>Para ver como la respuesta ha sido modificada tenemos que hacer que nuestro navegador utilice el proxy que acabamos de configurar, simplemente tenemos que hacer la configuración de red para que apunte a localhost por el puerto 3128, que es el puerto que usa Squid por defecto.</p>
+<p>Y mágicamente, sin tocar el código del site objetivo tenemos un servicio nuevo en la web, o el contenido modificado.</p>

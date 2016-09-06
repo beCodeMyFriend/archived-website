@@ -1,0 +1,62 @@
+---
+layout: post
+status: publish
+published: true
+title: Backup de máquinas virtuales automático en Proxmox
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2648
+wordpress_url: http://www.becodemyfriend.com/?p=2648
+date: '2012-01-24 10:08:11 +0000'
+date_gmt: '2012-01-24 09:08:11 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Sistemas
+- Linux
+- proxmox
+---
+<div style="text-align:justify">Aquí os dejo un <em>script</em> para hacer backup de todas las máquinas virtuales en Proxmox, manteniendo un número determinado de ellas.</p>
+<p>Este <em>script</em> debe dejarse en el <em>cron</em> de modo que se lance de madrugada, por ejemplo.
+</div>
+<pre class="java" name="code">#!/bin/sh
+
+RUTA_DUMPS="/var/lib/vz/dump/"
+MAXIMO_COPIAS=5
+
+for VZ_ID in `vzlist -1` ; do
+
+    VZ_HOSTNAME=`vzlist -o hostname -H ${VZ_ID}`
+    VZ_IP=`vzlist -o ip -H ${VZ_ID}`
+    VZ_DUMP="/var/lib/vz/dump/${VZ_HOSTNAME}_"`date '+%d%m%y%H%M%S'`".tgz"    
+
+    echo ""
+    echo "vzid ${VZ_ID}"
+    echo "host ${VZ_HOSTNAME}"
+    echo "ip.ad ${VZ_IP}"
+    echo "dump ${VZ_DUMP}"
+    echo ""
+
+    #: descartando copias viejas
+    TOTAL_COPIAS=`ls ${RUTA_DUMPS}${VZ_HOSTNAME}* | wc -l`
+    NUMERO_DESCARTADOS=`echo "${TOTAL_COPIAS} - ${MAXIMO_COPIAS}" | bc`
+    DESCARTADOS=`ls ${RUTA_DUMPS}${VZ_HOSTNAME}*  | head -n ${NUMERO_DESCARTADOS}`
+    for descartado in ${DESCARTADOS} ; do rm -f $descartado ; done
+
+    #: backuping
+    vzctl set ${VZ_ID} --ipdel all --save
+    cd /var/lib/vz/private/${VZ_ID}
+    tar cvzf ${VZ_DUMP} .
+    vzctl set ${VZ_ID} --ipadd ${VZ_IP} --save
+
+done</pre>
+<h3>Entradas similares:</h3>
+<p><a href="http://www.becodemyfriend.com/2011/12/instalacion-y-configuracion-sistema-integracion-continua-jenkins-con-autorizacion-http-basic-tomcat/" target="_blank" title="Instalación y configuración de un sistema de integración contínua Jenkins con autorización HTTP basic Tomcat">Instalación y configuración de un sistema de integración contínua Jenkins con autorización HTTP basic Tomcat</a></p>
+<p><a href="http://www.becodemyfriend.com/2011/11/instalacion-y-configuracion-de-servidor-de-integracion-continua-con-soporte-php/" target="_blank" title="Instalación y configuración de un servidor de integración contínua con soporte PHP">Instalación y configuración de un servidor de integración contínua con soporte PHP</a></p>
+<p><a href="http://www.becodemyfriend.com/2011/11/migracion-de-un-repositio-subversion-a-git/" target="_blank" title="Migración de un repositorio Subversion a Git">Migración de un repositorio Subversion a Git</a></p>

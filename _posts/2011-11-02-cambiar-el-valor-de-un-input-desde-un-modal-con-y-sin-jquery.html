@@ -1,0 +1,27 @@
+---
+layout: post
+status: publish
+published: true
+title: Cambiar el valor de un input desde un modal con y sin jQuery
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2263
+wordpress_url: http://www.becodemyfriend.com/?p=2263
+date: '2011-11-02 15:12:15 +0000'
+date_gmt: '2011-11-02 14:12:15 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Javascript
+---
+<p>Pongamos por caso que tenemos un formulario que abre un modal de selección y, desde ese modal (iframe), queremos cambiar con jQuery el valor de un input de la ventana padre…</p>
+<p>Muy fácil:</p>
+<pre class="java" name="code">$('#id_del_input', window.parent.document).val('valor');</pre>
+<p>Sin jQuery también podemos hacerlo de la siguiente manera:</p>
+<pre class="java" name="code">window.parent.document.getElementById('id_del_input').value='valor';</pre>

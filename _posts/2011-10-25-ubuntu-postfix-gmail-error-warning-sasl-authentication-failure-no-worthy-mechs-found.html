@@ -1,0 +1,36 @@
+---
+layout: post
+status: publish
+published: true
+title: 'Ubuntu postfix Gmail error warning: SASL authentication failure: No worthy
+  mechs found'
+author:
+  display_name: markitos
+  login: markitos
+  email: markitosco@gmail.com
+  url: ''
+author_login: markitos
+author_email: markitosco@gmail.com
+wordpress_id: 2255
+wordpress_url: http://www.becodemyfriend.com/?p=2255
+date: '2011-10-25 09:11:17 +0000'
+date_gmt: '2011-10-25 08:11:17 +0000'
+categories:
+- Programación
+tags:
+- Programación
+- Sistemas
+- Linux
+---
+<p><strong>Problema:</strong></p>
+<p>Una vez configurada una cuenta de gmail para el envío de correo, el postfix nos da el siguiente error:</p>
+<pre class="java" name="code">tail -f var.log.mail.log</pre>
+<pre class="java" name="code">Sep 23 15:10:24 monitor postfix/qmgr[1683]: 4CF941E68211: from=, size=356, nrcpt=1 (queue active)
+Sep 23 15:10:24 monitor postfix/smtp[1685]: warning: SASL authentication failure: No worthy mechs found
+Sep 23 15:10:24 monitor postfix/smtp[1685]: 4CF941E68211: SASL authentication failed; cannot authenticate to server smtp.gmail.com[209.85.229.109]: no mechanism available
+Sep 23 15:10:24 monitor postfix/smtp[1685]: warning: SASL authentication failure: No worthy mechs found
+Sep 23 15:10:24 monitor postfix/smtp[1685]: 4CF941E68211: to=, relay=smtp.gmail.com[209.85.229.108]:587, delay=313, delays=313/0.01/0.18/0, dsn=4.7.0, status=deferred (SASL authentication failed; cannot authenticate to server smtp.gmail.com[209.85.229.108]: no mechanism available)</pre>
+<p><strong>Solución:</strong></p>
+<pre class="java" name="code">apt-get install postfix-tls and libsasl2-modules
+/etc/init.d/postfix restart</pre>
+<p>=)</p>

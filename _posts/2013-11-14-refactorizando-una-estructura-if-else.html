@@ -1,0 +1,47 @@
+---
+layout: post
+status: publish
+published: true
+title: Refactorizando una estructura if-else
+author:
+  display_name: olareoun
+  login: olareoun
+  email: victor.miguez.martinez@gmail.com
+  url: ''
+author_login: olareoun
+author_email: victor.miguez.martinez@gmail.com
+wordpress_id: 4323
+wordpress_url: http://www.becodemyfriend.com/?p=4323
+date: '2013-11-14 16:46:53 +0000'
+date_gmt: '2013-11-14 15:46:53 +0000'
+categories:
+- Programación
+tags:
+- Agilismo
+- beCode
+- Programación
+- Artesanía del software
+---
+<p>Hace unos días dediqué un rato a programar junto con Xavi en una sesión de refactor para mejorar una pieza de código similar a la que expondré a lo largo de post. La idea principal era sustituir una estructura if-else por algo más legible, mantenible, elegante y más alineado con los principios SOLID. El entramado de if-else al que nos enfrentábamos era más grande que el que expongo, lo cual hacía la necesidad de refactor aún más latente.</p>
+<p>Digamos que tenemos una estructura parecida a esta:</p>
+<p> {% gist 5251f435153da16c3396 %}</p>
+<p>En función de ciertas condiciones sobre "item1" e "item2" se devolvía un procesador que realizaría determinadas operaciones sobre ellos. Además algún procesador necesitaba de "collaborator" para sus operaciones.</p>
+<p>Pues bien, en primer lugar lo que hicimos fue "aplanar" la estructura if-else para que tuviese solo un nivel y que fuese más fácil de seguir el flujo de condiciones y resultados.</p>
+<p>{% gist 2858fa74dfd04a5c1b7d %}</p>
+<p>Además vimos que no era necesaria la parte de los else ya que si cada condición se cumplía se hacía return. Así que también lo eliminamos.</p>
+<p>{% gist d8b1bcda7607daf02b2e %}</p>
+<p>En este momento la idea fué eliminar la cadena de ifs construyendo una serie de objectos que encapsulasen la lógica de conocer si se cumplen ciertas condiciones sobre los parámetros de entrada y saber el procesador concreto a devolver. Todos implementarán una interfaz de manera que podamos agruparlos en una estructura que se pueda recorrer buscando el procesador concreto en función de los parámetros. Empezamos con la primera rama de if. En ella vemos que no se necesita item2, pero lo pasamos de todos modos para cumplir con la interfaz Creator.</p>
+<p>{% gist e4b775b737b27348b64d %}</p>
+<p>La idea es que la factoría de procesadores contenga un conjunto de objectos que conozcan la condición necesario para devolver un procesador concreto. De esa manera el método getConcreteProcessor recorrerá dicha lista hasta encontrar el primer objecto que le devuelva un procesador.<br />
+Continuamos con el resto de condiciones y procesadores.</p>
+<p>{% gist f81131e674a945222281 %}</p>
+<p>En este punto hay que resaltar un par de asuntos. Uno de ellos es que necesitamos pasar al ConcreteProcessor3Creator el parámetro "collaborator" a pesar de que no se utiliza, pero lo hacemos para que pueda cumplir la interfaz. Es un mal menor y probablemente señal de que todavía se podría iterar más sobre este código para ver de dónde surge esta necesidad. Por otro lado, hemos introducido algo de duplicación al tener el método "condition1" en dos clases anónimas diferentes. Así que dándole otra vuelta más vimos que podríamos crear un objeto que englobase Item1 e Item2, ya que parece que son dos objetos que van bastante unidos en este flujo. De esta manera además de reducir el número de parámetros podemos agrupar todos los métodos "condition" dentro de esa especie de "wrapper".</p>
+<p>{% gist 7fc3736a90174599f44c %}</p>
+<p>De esta manera hemos englobado toda la lógica que tiene que ver con condiciones sobre los objetos "item1" e "item2" en una sóla clase y hemos eliminado la duplicación del método "condition1". Además, por último, el método "getConcreteProcessor" sería llamado directamente con el objeto "extendedItem" ya construido. Un parámetro menos.</p>
+<p>Ahora toca reflexionar. Recuerdo que le preguntaba a Xavi "y de verdad merece la pena todo 'este pitote' para deshacernos de un if?". La respuesta, por supuesto, era que sí. Sobre todo porque nuestro if era más grande y con posibilidades de crecer aún más.<br />
+- Hemos distribuido mejor las responsabilidades, el código está mucho más limpio y es más fácil de entender.<br />
+- Se pueden añadir otros procesadores en base a otras condiciones de manera más sencilla, sin necesidad de extender aún más la estructura if-else.<br />
+- El método "getConcreteProcessor" es mucho más pequeño y ya no necesita conocer nada sobre las clases Item1 e Item2 ni sobre condiciones que aplican sobre ellas.</p>
+<p>Otra de mis preguntas era si debíamos sacar cada una de esas inner clases a sus propios ficheros, siendo la respuesta que no, ya que están directamente ligadas a la propia factoría.</p>
+<p>Casi se me olvida! Esto es muy "de Xavi"! Invertir las condiciones en los creator para que quede más en modo cláusula de guarda cuando no haya que devolver procesador.</p>
+<p>{% gist d1543b165eef70b44963 %}</p>
